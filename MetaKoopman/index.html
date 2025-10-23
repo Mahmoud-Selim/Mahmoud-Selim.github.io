@@ -1,11 +1,123 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>MetaKoopman</title>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MetaKoopman: A Koopman-Based Framework for Meta-Learning Dynamical Systems</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f9fafb;
+      color: #1e293b;
+      line-height: 1.6;
+    }
+
+    header {
+      background: linear-gradient(135deg, #0f172a, #1e3a8a);
+      color: #f8fafc;
+      text-align: center;
+      padding: 3rem 1rem;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      margin: 0 0 0.5rem;
+    }
+
+    header p {
+      margin: 0.3rem 0;
+      font-size: 1.1rem;
+      color: #cbd5e1;
+    }
+
+    main {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    section {
+      margin-bottom: 2.5rem;
+    }
+
+    h2 {
+      border-left: 4px solid #3b82f6;
+      padding-left: 0.5rem;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: #1e40af;
+    }
+
+    .links {
+      text-align: center;
+      margin: 2rem 0;
+    }
+
+    .links a {
+      display: inline-block;
+      margin: 0.5rem;
+      padding: 0.75rem 1.25rem;
+      border-radius: 0.5rem;
+      text-decoration: none;
+      color: white;
+      background: #2563eb;
+      transition: background 0.2s;
+    }
+
+    .links a:hover {
+      background: #1d4ed8;
+    }
+
+    footer {
+      text-align: center;
+      color: #64748b;
+      font-size: 0.9rem;
+      padding: 2rem 0;
+      border-top: 1px solid #e2e8f0;
+      background: #f1f5f9;
+    }
+  </style>
 </head>
+
 <body>
-  <h1>MetaKoopman: A Koopman-based framework for ...</h1>
-  <p>This page describes the paper and provides links to code, datasets, and results.</p>
+  <header>
+    <h1>MetaKoopman</h1>
+    <p>A Koopman-Based Framework for Meta-Learning Dynamical Systems</p>
+    <p><strong>Mahmoud Selim</strong>, [Add co-authors if applicable]</p>
+  </header>
+
+  <main>
+    <section>
+      <h2>Abstract</h2>
+      <p>
+        MetaKoopman introduces a data-efficient meta-learning framework for discovering Koopman operators
+        that generalize across dynamical systems. By combining Koopman theory with meta-learning principles,
+        the method enables rapid adaptation to new systems with minimal training data, achieving state-of-the-art
+        performance on benchmark dynamical prediction tasks.
+      </p>
+    </section>
+
+    <section>
+      <h2>Highlights</h2>
+      <ul>
+        <li>Unified Koopman and meta-learning formulation for continuous-time systems.</li>
+        <li>Enables generalization across families of dynamical systems.</li>
+        <li>Compatible with neural operator and autoencoder architectures.</li>
+        <li>Open-source implementation for reproducible research.</li>
+      </ul>
+    </section>
+
+    <div class="links">
+      <a href="#">📄 Paper (PDF)</a>
+      <a href="#">💻 Code Repository</a>
+      <a href="#">📚 Cite</a>
+    </div>
+  </main>
+
+  <footer>
+    © <script>document.write(new Date().getFullYear())</script> Mahmoud Selim · All rights reserved.
+  </footer>
 </body>
 </html>
