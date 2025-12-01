@@ -2,122 +2,1237 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MetaKoopman: A Koopman-Based Framework for Meta-Learning Dynamical Systems</title>
+  <title>MetaKoopman</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
+    :root {
+      --hero-text-max-width: 950px;
+      --hero-title-size-lg: 3.1rem;
+      --hero-title-size-md: 2.4rem;
+      --hero-title-size-sm: 1.9rem;
+      --hero-bg-overlay: radial-gradient(circle at top, rgba(255,255,255,0.06), transparent 55%);
+      --text-body: #4b5563;
+      --text-heading: #111827;
+      --blue-soft: rgba(59,130,246,0.08);
+    }
+
     body {
-      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       margin: 0;
-      padding: 0;
-      background: #f9fafb;
-      color: #1e293b;
-      line-height: 1.6;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      background: #020617;
+      color: #e5e7eb;
     }
 
-    header {
-      background: linear-gradient(135deg, #0f172a, #1e3a8a);
-      color: #f8fafc;
+    /* ================= HERO ================= */
+
+    .hero-container {
+      position: relative;
+      min-height: 80vh;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      padding: 4rem 1.75rem 3rem;
+      box-sizing: border-box;
+    }
+
+    .hero-video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 0;
+      filter: brightness(55%) contrast(1.05);
+    }
+
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background:
+        linear-gradient(to bottom, rgba(5,10,25,0.8), rgba(5,10,25,0.9)),
+        var(--hero-bg-overlay);
+      backdrop-filter: blur(3px);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: var(--hero-text-max-width);
       text-align: center;
-      padding: 3rem 1rem;
+      margin: 0 auto;
     }
 
-    header h1 {
-      font-size: 2.5rem;
-      margin: 0 0 0.5rem;
+    .hero-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.4rem 0.9rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: rgba(15, 118, 255, 0.16);
+      border: 1px solid rgba(191, 219, 254, 0.5);
+      margin-bottom: 1.4rem;
+      backdrop-filter: blur(6px);
     }
 
-    header p {
-      margin: 0.3rem 0;
+    .hero-title {
+      font-size: 2.8rem;
+      line-height: 1.16;
+      font-weight: 700;
+      margin: 0 0 0.9rem;
+      text-shadow: 0 10px 35px rgba(0, 0, 0, 0.5);
+    }
+
+    .hero-subtitle {
       font-size: 1.1rem;
-      color: #cbd5e1;
+      line-height: 1.5;
+      opacity: 0.92;
+      margin: 0 auto 1.7rem;
+      max-width: 42rem;
     }
 
-    main {
-      max-width: 900px;
-      margin: 2rem auto;
-      padding: 0 1rem;
+    .hero-authors {
+      font-size: 0.98rem;
+      line-height: 1.6;
+      opacity: 0.9;
+      margin-bottom: 1.7rem;
     }
 
-    section {
-      margin-bottom: 2.5rem;
+    .hero-author-names {
+      font-weight: 500;
     }
 
-    h2 {
-      border-left: 4px solid #3b82f6;
-      padding-left: 0.5rem;
-      font-size: 1.5rem;
-      margin-bottom: 1rem;
-      color: #1e40af;
-    }
-
-    .links {
-      text-align: center;
-      margin: 2rem 0;
-    }
-
-    .links a {
-      display: inline-block;
-      margin: 0.5rem;
-      padding: 0.75rem 1.25rem;
-      border-radius: 0.5rem;
-      text-decoration: none;
-      color: white;
-      background: #2563eb;
-      transition: background 0.2s;
-    }
-
-    .links a:hover {
-      background: #1d4ed8;
-    }
-
-    footer {
-      text-align: center;
-      color: #64748b;
+    .hero-affiliations {
       font-size: 0.9rem;
-      padding: 2rem 0;
-      border-top: 1px solid #e2e8f0;
-      background: #f1f5f9;
+      opacity: 0.85;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 2.2rem;
+    }
+
+    .hero-btn {
+      padding: 0.75rem 1.6rem;
+      border-radius: 999px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      text-decoration: none;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition:
+        transform 0.16s ease-out,
+        box-shadow 0.16s ease-out,
+        background 0.16s ease-out,
+        border-color 0.16s ease-out,
+        opacity 0.16s ease-out;
+      backdrop-filter: blur(6px);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      white-space: nowrap;
+    }
+
+    .hero-btn-primary {
+      background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+      color: #0b1120;
+      box-shadow: 0 10px 35px rgba(56, 189, 248, 0.35);
+    }
+
+    .hero-btn-ghost {
+      background: rgba(15, 23, 42, 0.55);
+      color: #e5f0ff;
+      border-color: rgba(148, 163, 184, 0.65);
+    }
+
+    .hero-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 38px rgba(15, 23, 42, 0.55);
+      opacity: 0.98;
+    }
+
+    .hero-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.65);
+    }
+
+    .hero-scroll-indicator {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.82rem;
+      opacity: 0.8;
+    }
+
+    .hero-scroll-arrow {
+      animation: hero-bounce 1.4s infinite;
+      font-size: 1.5rem;
+    }
+
+    @keyframes hero-bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(6px); }
+    }
+
+    /* ================= GENERIC SECTIONS ================= */
+
+    .section {
+      padding: 2.5rem 4vw 3rem;
+      background: #ffffff;
+      color: var(--text-body);
+    }
+
+    .section-first {
+      padding-top: 1.5rem;
+    }
+
+    .section-inner {
+      max-width: min(1600px, 85vw);
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .section-title {
+      font-size: 2.1rem;
+      font-weight: 700;
+      color: var(--text-heading);
+      margin-bottom: 1rem;
+    }
+
+    .section-lead {
+      font-size: 1.1rem;
+      max-width: 1000px;
+      margin: 0 auto 1.8rem;
+      color: var(--text-body);
+    }
+
+    .section-body {
+      font-size: 1.08rem;
+      line-height: 1.85rem;
+      color: var(--text-body);
+      max-width: 1100px;
+      margin: 1.25rem auto 0;
+      text-align: justify;
+    }
+
+    .section-muted {
+      background: #f7f8fa;
+    }
+
+    .section-divider {
+      height: 1px;
+      background: linear-gradient(to right, transparent, rgba(148,163,184,0.4), transparent);
+      margin: 2.5rem auto 0;
+      max-width: min(900px, 70vw);
+    }
+
+    /* ================= DEMO ================= */
+
+    .demo-single {
+      max-width: min(1400px, 85vw);
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .demo-video-wrapper {
+      position: relative;
+      border-radius: 1rem;
+      overflow: hidden;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+      margin-bottom: 0.9rem;
+    }
+
+    .demo-video-wrapper video {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .demo-caption {
+      font-size: 0.95rem;
+      color: #6b7280;
+      max-width: 800px;
+      margin: 0.4rem auto 0;
+    }
+
+    /* ================= METHODOLOGY ================= */
+
+    .method-grid {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 2.5rem;
+      margin-bottom: 3.5rem;
+    }
+
+    .method-grid.reverse {
+      flex-direction: row-reverse;
+    }
+
+    .method-figure {
+      flex: 1 1 360px;
+      max-width: 700px;
+      text-align: center;
+    }
+
+    .method-figure img {
+      width: 100%;
+      border-radius: 1rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      background: #ffffff;
+    }
+
+    .method-text {
+      flex: 1 1 360px;
+      max-width: 700px;
+      text-align: left;
+    }
+
+    .method-text h3 {
+      font-size: 1.6rem;
+      color: #111827;
+      margin-bottom: 1rem;
+    }
+
+    .method-text ul {
+      font-size: 1.05rem;
+      line-height: 1.7;
+      color: #4b5563;
+      padding-left: 1.2rem;
+    }
+
+    .method-text li {
+      margin-bottom: 0.4rem;
+    }
+
+    .method-framework {
+      max-width: min(950px, 85vw);
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .method-framework-card {
+      background: #ffffff;
+      border-radius: 1.2rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      padding: 1.5rem 1.5rem 1.2rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(148,163,184,0.25);
+    }
+
+    .method-framework img {
+      width: 80%;
+      border-radius: 0.9rem;
+      display: block;
+    }
+
+    .method-framework-caption {
+      font-size: 0.92rem;
+      color: #6b7280;
+      margin-top: 0.6rem;
+    }
+
+    .method-framework ul {
+      font-size: 1.05rem;
+      line-height: 1.7;
+      color: #4b5563;
+      text-align: left;
+      max-width: 900px;
+      margin: 0 auto;
+      padding-left: 1.2rem;
+    }
+
+    .method-framework li {
+      margin-bottom: 0.4rem;
+    }
+
+    /* ================= EXPERIMENTS ================= */
+
+    .exp-subtitle {
+      font-size: 1.5rem;
+      font-weight: 650;
+      color: #111827;
+      margin: 2rem 0 1rem;
+      text-align: center;
+    }
+
+    .exp-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      align-items: flex-start;
+      justify-content: center;
+      margin-bottom: 2.2rem;
+    }
+
+    .exp-col-text {
+      flex: 1 1 360px;
+      max-width: 640px;
+      text-align: left;
+    }
+
+    .exp-col-text p {
+      font-size: 1rem;
+      line-height: 1.7;
+      color: #4b5563;
+      margin-bottom: 0.8rem;
+    }
+
+    .exp-col-text ul {
+      font-size: 0.98rem;
+      line-height: 1.7;
+      color: #4b5563;
+      padding-left: 1.1rem;
+      margin: 0;
+    }
+
+    .exp-col-text li {
+      margin-bottom: 0.4rem;
+    }
+
+    .exp-col-media {
+      flex: 1 1 360px;
+      max-width: 300;
+    }
+
+    .exp-systems-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      justify-content: center;
+    }
+
+    /* Uniform experiment cards */
+.exp-card {
+  background: #ffffff;
+  border-radius: 1.1rem;
+  box-shadow: 0 10px 22px rgba(15,23,42,0.07);
+  border: 1px solid rgba(148,163,184,0.25);
+  padding: 1rem 1.1rem 1.2rem;
+  width: 310px;             /* FIXED WIDTH */
+  text-align: left;
+  display: flex;            /* Ensures equal-height cards */
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.exp-video-card {
+  background: #ffffff;
+  border-radius: 1.1rem;
+  box-shadow: 0 10px 22px rgba(15,23,42,0.07);
+  border: 1px solid rgba(148,163,184,0.25);
+  padding: 1rem 1.1rem 1.2rem;
+  width: 500px;             /* FIXED WIDTH */
+  text-align: left;
+  display: flex;            /* Ensures equal-height cards */
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+/* Image container: fixed height, consistent look */
+.exp-image-wrapper {
+  width: 100%;
+  height: 210px;            /* FIXED HEIGHT */
+  border-radius: 0.9rem;
+  overflow: hidden;
+  background: #f3f4f6;
+  margin-bottom: 0.7rem;
+}
+
+/* Image always matches the box shape */
+.exp-image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;        /* CROPS to uniform shape */
+  display: block;
+}
+
+/* Titles and text kept compact to match alignments */
+.exp-card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+  color: #111827;
+}
+
+.exp-card-text {
+  font-size: 0.85rem;
+  color: #4b5563;
+  line-height: 1.35;
+  flex-grow: 1;             /* Helps keep card heights equal */
+}
+
+
+    /* MuJoCo icons */
+
+    .exp-mujoco-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.2rem;
+      justify-content: center;
+    }
+
+    .exp-mujoco-card {
+      width: 140px;
+      text-align: center;
+    }
+
+    .exp-mujoco-thumb {
+      width: 140px;
+      height: 140px;
+      border-radius: 0.9rem;
+      overflow: hidden;
+      background: #f3f4f6;
+      margin: 0 auto 0.4rem;
+      border: 1px solid rgba(148,163,184,0.35);
+      box-shadow: 0 8px 18px rgba(15,23,42,0.06);
+    }
+
+    .exp-mujoco-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;  /* ensures Panda has same size */
+    }
+
+    .exp-mujoco-label {
+      font-size: 0.9rem;
+      color: #374151;
+      line-height: 1.45;
+    }
+
+    .exp-results {
+      margin-top: 2.5rem;
+    }
+
+    .exp-results-text {
+      font-size: 0.98rem;
+      color: #4b5563;
+      max-width: 1000px;
+      margin: 0 auto 1.5rem;
+      text-align: center;
+    }
+
+    .exp-table-wrapper {
+      overflow-x: auto;
+      margin-bottom: 1.5rem;
+    }
+
+    .exp-table {
+      width: 100%;
+      max-width: 100%;
+      border-collapse: collapse;
+      margin: 0 auto;
+      font-size: 0.95rem;
+    }
+
+    .exp-table thead {
+      background: #f3f4f6;
+    }
+
+    .exp-table th,
+    .exp-table td {
+      padding: 0.6rem 0.75rem;
+      border: 1px solid rgba(209,213,219,0.8);
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .exp-table th {
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .exp-table td:first-child,
+    .exp-table th:first-child {
+      text-align: left;
+      white-space: normal;
+    }
+
+    .exp-highlight {
+      background: var(--blue-soft);
+      color: #1d4ed8;
+      font-weight: 600;
+    }
+
+    .exp-truck-scenarios {
+      margin-top: 2.7rem;
+    }
+
+    .exp-scenarios-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.8rem;
+      justify-content: center;
+      margin-top: 0.8rem;
+    }
+
+    .exp-video-wrapper {
+      border-radius: 1rem;
+      overflow: hidden;
+      border: 1px solid rgba(0,0,0,0.1);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+      margin-bottom: 0.6rem;
+      width: 500px;
+    }
+
+    .exp-video-wrapper video {
+      width: 100%;
+      display: block;
+    }
+
+    /* ================= BIBTEX ================= */
+
+    .bibtex-block {
+      max-width: 800px;
+      margin: 1.5rem auto 0;
+      text-align: left;
+    }
+
+    .bibtex-code {
+      background: #020617;
+      color: #e5e7eb;
+      border-radius: 0.75rem;
+      padding: 1rem 1.2rem;
+      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.9rem;
+      overflow-x: auto;
+      border: 1px solid rgba(15,23,42,0.8);
+    }
+
+    .bibtex-copy-btn {
+      background: #111827;
+      color: #e5e7eb;
+      border-radius: 999px;
+      border: 1px solid rgba(15,23,42,0.8);
+      padding: 0.35rem 0.9rem;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s ease-out, transform 0.15s ease-out, box-shadow 0.15s ease-out;
+    }
+
+    .bibtex-copy-btn:hover {
+      background: #1f2937;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(15,23,42,0.25);
+    }
+
+    .bibtex-copy-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 3px 10px rgba(15,23,42,0.4);
+    }
+
+    /* ================= RESPONSIVE ================= */
+
+    @media (max-width: 900px) {
+      .hero-title {
+        font-size: var(--hero-title-size-md);
+      }
+      .hero-subtitle {
+        font-size: 1.02rem;
+      }
+      .section-inner {
+        padding: 0 1.5rem;
+      }
+      .method-grid,
+      .method-grid.reverse {
+        flex-direction: column;
+      }
+      .method-text,
+      .method-figure {
+        max-width: 100%;
+      }
+      .exp-row {
+        flex-direction: column;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .hero-container {
+        padding: 0 1.2rem 2.5rem;
+      }
+      .hero-title {
+        font-size: var(--hero-title-size-sm);
+      }
+      .hero-subtitle {
+        font-size: 0.98rem;
+      }
+      .hero-buttons {
+        gap: 0.5rem;
+      }
+      .hero-btn {
+        width: 100%;
+        justify-content: center;
+      }
+      .section {
+        padding: 3rem 1.25rem 3rem;
+      }
     }
   </style>
 </head>
 
 <body>
-  <header>
-    <h1>MetaKoopman</h1>
-    <p>A Koopman-Based Framework for Meta-Learning Dynamical Systems</p>
-    <p><strong>Mahmoud Selim</strong>, [Add co-authors if applicable]</p>
-  </header>
 
-  <main>
-    <section>
-      <h2>Abstract</h2>
-      <p>
-        MetaKoopman introduces a data-efficient meta-learning framework for discovering Koopman operators
-        that generalize across dynamical systems. By combining Koopman theory with meta-learning principles,
-        the method enables rapid adaptation to new systems with minimal training data, achieving state-of-the-art
-        performance on benchmark dynamical prediction tasks.
+  <!-- ================= HERO SECTION ================= -->
+  <section class="hero-container" id="top">
+    <video class="hero-video" autoplay muted loop playsinline>
+      <source src="assets/MetaKoopmanWebsiteTop.mp4" type="video/mp4" />
+    </video>
+
+    <div class="hero-overlay"></div>
+
+    <div class="hero-content">
+      <div class="hero-pill">
+        NeurIPS 2025 · 39th Conference on Neural Information Processing Systems
+      </div>
+
+      <h1 class="hero-title">
+        MetaKoopman: Bayesian Meta-Learning of Koopman Operators for Modeling
+        Structured Dynamics under Distribution Shifts
+      </h1>
+
+      <p class="hero-subtitle">
+        A Bayesian meta-learning framework that learns priors over Koopman operators,
+        enabling fast, uncertainty-aware adaptation of nonlinear dynamics models under
+        distribution shifts.
       </p>
-    </section>
 
-    <section>
-      <h2>Highlights</h2>
-      <ul>
-        <li>Unified Koopman and meta-learning formulation for continuous-time systems.</li>
-        <li>Enables generalization across families of dynamical systems.</li>
-        <li>Compatible with neural operator and autoencoder architectures.</li>
-        <li>Open-source implementation for reproducible research.</li>
-      </ul>
-    </section>
+      <p class="hero-authors">
+        <span class="hero-author-names">
+          Mahmoud Selim<sup>1,2</sup> ·
+          Sriharsha Bhat<sup>2</sup> ·
+          Karl H. Johansson<sup>2</sup>
+        </span>
+        <br />
+        <span class="hero-affiliations">
+          <sup>1</sup>TRATON · <sup>2</sup>KTH Royal Institute of Technology
+        </span>
+      </p>
 
-    <div class="links">
-      <a href="#">📄 Paper (PDF)</a>
-      <a href="#">💻 Code Repository</a>
-      <a href="#">📚 Cite</a>
+      <div class="hero-buttons">
+        <a class="hero-btn hero-btn-primary" href="https://openreview.net/pdf?id=BJ3z1hYuKx" target="_blank">
+          📄 Paper
+        </a>
+        <a class="hero-btn hero-btn-ghost" 
+          href="https://github.com/Mahmoud-Selim/MetaKoopman" 
+          target="_blank">
+          <svg height="18" viewBox="0 0 16 16" width="18" aria-hidden="true" style="vertical-align: text-bottom;">
+            <path fill="currentColor" 
+              d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38
+                0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13
+                -.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66
+                .07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95
+                0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12
+                0 0 .67-.21 2.2.82a7.65 7.65 0 0 1 2-.27c.68 0 1.36.09 2 .27
+                1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 
+                1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48
+                0 1.07-.01 1.93-.01 2.19 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8
+                c0-4.42-3.58-8-8-8z">
+            </path>
+          </svg>
+          Code on GitHub
+        </a>
+        <a class="hero-btn hero-btn-ghost" href="#demo">
+          🎥 Truck Trials Demo
+        </a>
+      </div>
+
+      <div class="hero-scroll-indicator">
+        <span>Scroll to explore</span>
+        <div class="hero-scroll-arrow">⌄</div>
+      </div>
     </div>
-  </main>
+  </section>
 
-  <footer>
-    © <script>document.write(new Date().getFullYear())</script> Mahmoud Selim · All rights reserved.
-  </footer>
+  <!-- ================ DEMO SECTION ================= -->
+  <section id="demo" class="section section-first">
+    <div class="section-inner">
+      <h2 class="section-title">Truck Trials</h2>
+      <p class="section-lead">
+        Real-world winter test demonstrating the operational environment and the nonlinear
+        dynamics MetaKoopman is designed to model and adapt to.
+      </p>
+
+      <div class="demo-single">
+        <div class="demo-video-wrapper">
+          <video controls playsinline>
+            <source src="assets/MetaKoopmanWebsiteTop.mp4" type="video/mp4" />
+          </video>
+        </div>
+        <p class="demo-caption">
+          Field footage from the truck trials. These tests highlight the
+          distributional challenges MetaKoopman must adapt to: slippery surfaces, varying
+          loads, and rapidly shifting dynamics.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================ ABSTRACT SECTION ================ -->
+  <section id="abstract" class="section">
+    <div class="section-inner">
+      <h2 class="section-title">Abstract</h2>
+      <p class="section-body">
+        Modeling and forecasting nonlinear dynamics under distribution shifts is essential
+        for robust decision-making in real-world systems. In this work, we propose
+        MetaKoopman, a Bayesian meta-learning framework for modeling nonlinear dynamics
+        through linear latent representations. MetaKoopman learns a Matrix
+        Normal–Inverse Wishart (MNIW) prior over the Koopman operator, enabling
+        closed-form Bayesian updates conditioned on recent trajectory segments.
+        Moreover, it provides a closed-form posterior predictive distribution over
+        future state trajectories, capturing both epistemic and aleatoric uncertainty
+        in the learned dynamics. We evaluate MetaKoopman on a full-scale autonomous
+        truck and trailer system across a wide range of adverse winter scenarios —
+        including snow, ice, and mixed-friction conditions — as well as in simulated
+        control tasks with diverse distribution shifts. MetaKoopman consistently
+        outperforms prior approaches in multi-step prediction accuracy, uncertainty
+        calibration and robustness to distributional shifts. Field experiments further
+        demonstrate its effectiveness in dynamically feasible motion planning,
+        particularly during evasive maneuvers and operation at the limits of traction.
+      </p>
+    </div>
+
+    <div class="section-divider"></div>
+  </section>
+
+  <!-- ================ METHOD SECTION ================ -->
+  <section id="method" class="section section-muted">
+    <div class="section-inner">
+      <h2 class="section-title">Methodology</h2>
+
+      <div class="method-grid">
+        <div class="method-figure">
+          <img src="assets/KoopmanTheory.gif" alt="Koopman operator background animation" />
+        </div>
+        <div class="method-text">
+          <h3>Background: Koopman Operators</h3>
+          <ul>
+            <li>Koopman operator theory represents nonlinear dynamics <strong>linearly</strong> in a lifted latent space.</li>
+            <li>States and controls are mapped into a higher-dimensional latent representation where the Koopman operator acts linearly.</li>
+            <li>This makes complex dynamics more <strong>interpretable</strong> and a natural fit for prediction, planning, and control.</li>
+            <li>Classical Koopman models are typically trained offline and do not model uncertainty or online adaptation.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="method-grid reverse">
+        <div class="method-figure">
+          <img src="assets/CoreIdea.gif" alt="MetaKoopman core idea animation" />
+        </div>
+        <div class="method-text">
+          <h3>MetaKoopman: Core Idea</h3>
+          <ul>
+            <li>Place a <strong>Matrix Normal–Inverse Wishart (MNIW)</strong> prior distribution over the Koopman operator, learning a distribution over dynamics rather than a single matrix.</li>
+            <li>As new trajectory segments arrive, perform a <strong>closed-form Bayesian update</strong> to obtain a posterior over the Koopman operator.</li>
+            <li>Use this posterior to generate <strong>uncertainty-aware predictions</strong> of future latent states and their projections to the physical state space.</li>
+            <li>Explicitly model both <strong>epistemic</strong> (model) and <strong>aleatoric</strong> (noise) uncertainty, enabling fast adaptation under distribution shifts.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="method-framework">
+        <h3>MetaKoopman Framework Overview</h3>
+        <div class="method-framework-card">
+          <center><img src="assets/MetaKoopmanFramework.png" alt="MetaKoopman framework diagram" /></center>
+          <div class="method-framework-caption">
+            High-level architecture: context and action encoders feed a conjugate Bayesian
+            update over the Koopman operator, which is then used for multi-step prediction
+            in latent and physical state spaces.
+          </div>
+        </div>
+
+        <ul>
+          <li><strong>Step 1 — Context Encoding:</strong> Encode past trajectories of states and actions into latent representations.</li>
+          <li><strong>Step 2 — Bayesian Meta-Update:</strong> Update the MNIW prior over the Koopman operator using recent data, yielding a posterior distribution over dynamics.</li>
+          <li><strong>Step 3 — Prediction &amp; Planning:</strong> Roll out future latent states under the posterior Koopman operator and project them into the physical state space.</li>
+          <li><strong>Training Objective:</strong> Minimize the <strong>Negative Log-Likelihood (NLL)</strong> of trajectories under the predictive posterior, encouraging calibrated, adaptable Koopman dynamics.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================ EXPERIMENTS SECTION ================ -->
+  <section id="experiments" class="section">
+    <div class="section-inner">
+      <h2 class="section-title">Experiments</h2>
+
+      <!-- Real-world data collection -->
+      <h3 class="exp-subtitle">Real-World Data Collection</h3>
+      <div class="exp-row">
+        <div class="exp-col-text">
+          <p>
+            <p>
+  The truck dataset is collected using a full-scale, 37.5-ton autonomous truck–trailer platform.  The dataset includes comprehensive logs from various high-fidelity sensors. Special
+emphasis was placed on capturing edge cases and distribution shifts, particularly under challenging
+winter conditions. Routine tests included maneuvers on a high-speed test track and test drives on
+public highways in different weather conditions including sun, snow and rain. Driving scenarios
+included straight line driving, negotiating curves and slopes, lane changes, cut-ins, stopping, following
+other actors and highway driving. 
+</p>
+
+<ul>
+  <li>
+    <strong>Truck & Trailer:</strong> A 37.5-ton tractor–semitrailer operating close to its physical traction limits, 
+    capturing realistic heavy-vehicle dynamics under extreme winter conditions.
+  </li>
+  <li>
+    <strong>μ-Split:</strong> Sections of roadway with asymmetric friction, producing abrupt left–right force imbalances 
+    that challenge stability, braking performance, and model adaptation.
+  </li>
+  <li>
+    <strong>Test maneuvers:</strong> A diverse set of maneuvers, including emergency braking, evasive lane changes, 
+    high-speed cornering, and transitions across changing surface types.
+  </li>
+</ul>
+
+        </div>
+        <div class="exp-col-media">
+          <div class="exp-systems-grid">
+            <div class="exp-card">
+              <div class="exp-image-wrapper">
+                <img src="assets/Vehicle.png" alt="Truck and trailer system" />
+              </div>
+              <h4 class="exp-card-title">Truck &amp; Trailer System</h4>
+              <p class="exp-card-text">
+                 Full-scale articulated truck–trailer platform tested on snow, ice, and μ-split surfaces.
+              </p>
+            </div>
+
+            <div class="exp-card">
+              <div class="exp-image-wrapper">
+                <img src="assets/Musplit.png" alt="Mu-split scenario" />
+              </div>
+              <h4 class="exp-card-title">&micro;-Split Scenario</h4>
+              <p class="exp-card-text">
+                 Asymmetric friction stressing rapid adaptation to shifting tire forces.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Simulated environments -->
+      <h3 class="exp-subtitle">Simulated Environments</h3>
+      <div class="exp-row">
+        <div class="exp-col-text">
+          <p>
+            Beyond the real truck data, we evaluate MetaKoopman on a suite of MuJoCo-based control tasks that
+            induce structured distribution shifts:
+          </p>
+          <ul>
+            <li><strong>HalfCheetah-Slope:</strong> varying ground slope causes persistent changes in dynamics.</li>
+            <li><strong>Hopper-Gravity:</strong> altered gravitational acceleration changes stability and control.</li>
+            <li><strong>Walker-Friction:</strong> contact friction ranges from slippery to sticky terrain.</li>
+            <li><strong>Ant-DisabledJoints:</strong> randomly disabled legs model structural failures.</li>
+            <li><strong>Panda-Damping:</strong> time-varying joint damping perturbs manipulation dynamics.</li>
+          </ul>
+        </div>
+        <div class="exp-col-media">
+          <div class="exp-mujoco-grid">
+            <div class="exp-mujoco-card">
+              <div class="exp-mujoco-thumb">
+                <img src="assets/cheetah.JPG" alt="Half-Cheetah environment" />
+              </div>
+              <p class="exp-mujoco-label"><strong>HalfCheetah-Slope</strong><br/>Varying ground slope.</p>
+            </div>
+            <div class="exp-mujoco-card">
+              <div class="exp-mujoco-thumb">
+                <img src="assets/hopper.JPG" alt="Hopper environment" />
+              </div>
+              <p class="exp-mujoco-label"><strong>Hopper-Gravity</strong><br/>Changing gravity.</p>
+            </div>
+            <div class="exp-mujoco-card">
+              <div class="exp-mujoco-thumb">
+                <img src="assets/walker.JPG" alt="Walker environment" />
+              </div>
+              <p class="exp-mujoco-label"><strong>Walker-Friction</strong><br/>Varying contact friction.</p>
+            </div>
+            <div class="exp-mujoco-card">
+              <div class="exp-mujoco-thumb">
+                <img src="assets/ant.JPG" alt="Ant environment" />
+              </div>
+              <p class="exp-mujoco-label"><strong>Ant-DisabledJoints</strong><br/>Random joint failures.</p>
+            </div>
+            <div class="exp-mujoco-card">
+              <div class="exp-mujoco-thumb">
+                <img src="assets/robotsuite.png" alt="Panda environment" />
+              </div>
+              <p class="exp-mujoco-label"><strong>Panda-Damping</strong><br/>Time-varying damping.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Predictive performance (structured, you fill numbers) -->
+      <div class="exp-results">
+        <h3 class="exp-subtitle">Predictive Performance under Distribution Shifts</h3>
+        <p class="exp-results-text">
+          We report validation MSE (mean &plusmn; standard deviation) across methods and environments.
+          MetaKoopman consistently achieves the best predictive accuracy on both the truck dataset and
+          the simulated benchmarks. Insert the numerical values from the paper into the cells marked
+          “see paper”.
+        </p>
+
+        <div class="exp-table-wrapper">
+          <table class="exp-table">
+            <thead>
+              <tr>
+                <th>Environment</th>
+                <th class="exp-highlight">MetaKoopman</th>
+                <th>BayesianMAML</th>
+                <th>GrBAL</th>
+                <th>DKO</th>
+                <th>BayesianNN</th>
+                <th>EMLP</th>
+                <th>NeuralODE</th>
+              </tr>
+            </thead>
+          <tbody>
+            <tr>
+              <td>Truck Dataset</td>
+              <td class="exp-highlight">0.0596 ± 0.0021</td>
+              <td>0.0888 ± 0.0100</td>
+              <td>0.0917 ± 0.0023</td>
+              <td>0.2042 ± 0.1674</td>
+              <td>0.2923 ± 0.0120</td>
+              <td>0.2589 ± 0.0053</td>
+              <td>0.0926 ± 0.0022</td>
+            </tr>
+
+            <tr>
+              <td>Hopper-Gravity</td>
+              <td class="exp-highlight">0.0369 ± 0.0019</td>
+              <td>0.0475 ± 0.0027</td>
+              <td>0.0926 ± 0.0016</td>
+              <td>0.0913 ± 0.0051</td>
+              <td>0.1332 ± 0.0116</td>
+              <td>0.1683 ± 0.0000</td>
+              <td>0.0793 ± 0.0078</td>
+            </tr>
+
+            <tr>
+              <td>HalfCheetah-Slope</td>
+              <td class="exp-highlight">0.7490 ± 0.0117</td>
+              <td>0.8808 ± 0.0104</td>
+              <td>1.2800 ± 0.0028</td>
+              <td>1.2927 ± 0.0196</td>
+              <td>1.7008 ± 0.0374</td>
+              <td>1.4395 ± 0.0210</td>
+              <td>1.9981 ± 0.2123</td>
+            </tr>
+
+            <tr>
+              <td>Walker-Friction</td>
+              <td class="exp-highlight">0.52 ± 0.10</td>
+              <td>0.54 ± 0.00</td>
+              <td>0.57 ± 0.07</td>
+              <td>0.59 ± 0.00</td>
+              <td>0.67 ± 0.02</td>
+              <td>0.61 ± 0.03</td>
+              <td>0.64 ± 0.05</td>
+            </tr>
+
+            <tr>
+              <td>Ant-DisabledJoints</td>
+              <td class="exp-highlight">0.21 ± 0.00</td>
+              <td>0.27 ± 0.02</td>
+              <td>0.29 ± 0.00</td>
+              <td>0.27 ± 0.00</td>
+              <td>0.69 ± 0.01</td>
+              <td>0.26 ± 0.04</td>
+              <td>0.46 ± 0.09</td>
+            </tr>
+
+            <tr>
+              <td>Panda-Damping</td>
+              <td class="exp-highlight">0.035 ± 0.002</td>
+              <td>0.05 ± 0.0002</td>
+              <td>0.07 ± 0.002</td>
+              <td>0.06 ± 0.003</td>
+              <td>0.11 ± 0.004</td>
+              <td>0.08 ± 0.02</td>
+              <td>0.07 ± 0.007</td>
+            </tr>
+          </tbody>
+          </table>
+        </div>
+
+        <!-- Uncertainty calibration -->
+        <h3 class="exp-subtitle">Uncertainty Calibration</h3>
+        <p class="exp-results-text">
+          To assess uncertainty quality, we compute the Pearson correlation between predicted variance
+          and squared error over a large held-out set. Higher correlation means uncertainty peaks where
+          the model tends to make larger errors. MetaKoopman yields the best calibration across all
+          evaluated datasets.
+        </p>
+
+        <div class="exp-table-wrapper">
+          <table class="exp-table">
+            <thead>
+              <tr>
+                <th>Dataset</th>
+                <th class="exp-highlight">MetaKoopman</th>
+                <th>EMLP</th>
+                <th>BayesianNN</th>
+                <th>BayesianMAML</th>
+              </tr>
+            </thead>
+          <tbody>
+            <tr>
+              <td>Truck Dataset</td>
+              <td class="exp-highlight">0.68</td>
+              <td>0.58</td>
+              <td>0.48</td>
+              <td>0.56</td>
+            </tr>
+
+            <tr>
+              <td>HalfCheetah-Slope</td>
+              <td class="exp-highlight">0.69</td>
+              <td>0.63</td>
+              <td>0.52</td>
+              <td>0.62</td>
+            </tr>
+
+            <tr>
+              <td>Ant-DisabledJoints</td>
+              <td class="exp-highlight">0.72</td>
+              <td>0.59</td>
+              <td>0.53</td>
+              <td>0.58</td>
+            </tr>
+          </tbody>
+          </table>
+        </div>
+
+        <p class="exp-results-text" style="margin-top:0.4rem;">
+          Further ablations on history length, tempering, and inference runtime —
+          including comparisons to Deep Koopman, neural ODEs, Bayesian neural networks,
+          ensembles and GrBAL — are reported in the main paper and appendix.
+        </p>
+      </div>
+
+      <!-- Truck trial scenarios -->
+      <div class="exp-truck-scenarios">
+        <h3 class="exp-subtitle">Truck Trial Scenarios</h3>
+        <p class="exp-results-text">
+          Finally, we visualize two representative winter-test maneuvers on the full-scale
+          truck–trailer system.
+        </p>
+
+        <div class="exp-scenarios-grid">
+          <div class="exp-video-card">
+            <h4 class="exp-card-title"><center>Braking on Polished Ice</center></h4>
+            <div class="exp-video-wrapper">
+              <video controls playsinline>
+                <source src="assets/brake_polished_ice.mp4" type="video/mp4" />
+              </video>
+            </div>
+            <p class="exp-card-text">
+              Emergency braking on a polished-ice section, stressing longitudinal dynamics and
+              MetaKoopman’s ability to adapt to extremely low friction.
+            </p>
+          </div>
+
+          <div class="exp-video-card">
+            <h4 class="exp-card-title"><center>Lane Change Maneuver</center></h4>
+            <div class="exp-video-wrapper">
+              <video controls playsinline>
+                <source src="assets/lane_change.mp4" type="video/mp4" />
+              </video>
+            </div>
+            <p class="exp-card-text">
+              High-demand lane change on mixed-friction (&micro;-split) roads, probing the model’s
+              ability to anticipate lateral dynamics and distribution shifts for safe motion planning.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================ BIBTEX SECTION ================ -->
+  <section id="bibtex" class="section section-muted">
+    <div class="section-inner">
+      <h2 class="section-title">BibTeX</h2>
+      <p class="section-lead">
+        If you find MetaKoopman useful in your work, please consider citing:
+      </p>
+
+      <div class="bibtex-block">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+          <span style="font-size:0.95rem;color:#4b5563;">Copy citation:</span>
+          <button id="bibtex-copy-btn" class="bibtex-copy-btn" type="button" onclick="copyBibtex()">
+            Copy BibTeX
+          </button>
+        </div>
+
+        <pre id="bibtex-text" class="bibtex-code">
+@inproceedings{selimmetakoopman,
+  title     = {MetaKoopman: Bayesian Meta-Learning of Koopman Operators for Modeling Structured Dynamics under Distribution Shifts},
+  author    = {Selim, Mahmoud and Bhat, Sriharsha and Johansson, Karl Henrik},
+  booktitle = {The Thirty-ninth Annual Conference on Neural Information Processing Systems}
+}
+        </pre>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    function copyBibtex() {
+      const pre = document.getElementById('bibtex-text');
+      const text = pre.innerText.trim();
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () {
+          const btn = document.getElementById('bibtex-copy-btn');
+          const oldLabel = btn.innerText;
+          btn.innerText = 'Copied!';
+          btn.disabled = true;
+          setTimeout(function () {
+            btn.innerText = oldLabel;
+            btn.disabled = false;
+          }, 1500);
+        }).catch(function () {
+          alert('BibTeX copied. You can paste it into your .bib file.');
+        });
+      } else {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+          document.execCommand('copy');
+          alert('BibTeX copied. You can paste it into your .bib file.');
+        } finally {
+          document.body.removeChild(textarea);
+        }
+      }
+    }
+  </script>
+
+<footer style="
+  background:#0f172a;
+  color:#94a3b8;
+  padding:1.7rem 1.5rem;
+  text-align:center;
+  font-size:0.9rem;
+  line-height:1.45;
+  border-top:1px solid rgba(255,255,255,0.06);
+">
+  © 2025 Mahmoud Selim. All rights reserved.<br>
+</footer>
 </body>
 </html>
