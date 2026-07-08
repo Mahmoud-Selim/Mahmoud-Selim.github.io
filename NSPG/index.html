@@ -1,59 +1,2126 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mahmoud Selim | Website Under Construction</title>
-  <style>
-    body {
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      background: linear-gradient(135deg, #1e293b, #0f172a);
-      color: #f8fafc;
-      font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      text-align: center;
-    }
-    h1 {
-      font-size: 2rem;
-      margin-bottom: 0.5rem;
-    }
-    p {
-      font-size: 1.1rem;
-      color: #cbd5e1;
-    }
-    .spinner {
-      margin-top: 1.5rem;
-      border: 4px solid #334155;
-      border-top: 4px solid #38bdf8;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-      100% {
-        transform: rotate(360deg);
-      }
-    }
-    footer {
-      position: absolute;
-      bottom: 1rem;
-      font-size: 0.9rem;
-      color: #64748b;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NSPG — Noisy-Space Policy Gradient for Diffusion Policies in Offline RL</title>
+<meta name="description" content="A noisy-space action-value function and policy gradient that trains diffusion policies in offline RL using only clean action-space value estimates.">
+
+<!-- MathJax -->
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script>
+
+<!-- Fonts: Fraunces (display, characterful serif with optical sizing) + Spline Sans (grotesque body) + JetBrains Mono (data/utility) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Spline+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  /* --- Noisy space (dark, ink, latent) --- */
+  --ink:        #101623;   /* deep desaturated slate-navy */
+  --ink-2:      #172033;   /* raised panels on dark */
+  --ink-3:      #212d44;
+  --haze:       #7d89a6;   /* muted cool grey-blue, "noise" */
+
+  /* --- Clean space (light, action) --- */
+  --paper:      #f7f9fb;   /* cool near-white, not cream */
+  --paper-2:    #ffffff;
+  --line:       #e2e6ec;   /* cool hairline */
+  --line-2:     #ccd3dd;   /* stronger rule */
+  --ink-text:   #1a2230;   /* near-black slate for body */
+  --muted-text: #5b6675;   /* cool grey for secondary */
+
+  /* --- Accent: one disciplined academic blue --- */
+  --signal:     #2f6db0;   /* deep serious blue (primary accent) */
+  --signal-d:   #24578c;   /* darker blue for hover/depth */
+  --lat:        #5fb3c4;   /* muted teal, dark sections only */
+
+  --radius: 4px;
+  --maxw: 1080px;
+  --measure: 720px;
+}
+
+*{ box-sizing:border-box; }
+html{ scroll-behavior:smooth; }
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink-text);
+  font-family:'Spline Sans', system-ui, sans-serif;
+  font-size:17px;
+  line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+::selection{ background:var(--signal); color:#fff; }
+
+a{ color:inherit; }
+img{ max-width:100%; display:block; }
+
+.wrap{ max-width:var(--maxw); margin:0 auto; padding:0 28px; }
+.measure{ max-width:var(--measure); }
+
+/* ============ HERO ============ */
+.hero{
+  position:relative;
+  background:var(--ink);
+  color:#eef2f7;
+  overflow:hidden;
+  border-bottom:1px solid #000;
+}
+#noisefield{
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  display:block;
+  opacity:0.9;
+}
+.hero-inner{
+  position:relative; z-index:2;
+  max-width:var(--maxw);
+  margin:0 auto;
+  padding:74px 28px 60px;
+}
+.venue-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  align-items:center;
+  margin-bottom:14px;
+}
+.venue{
+  display:inline-flex; align-items:center; gap:10px;
+  font-family:'JetBrains Mono', monospace;
+  font-size:12px; letter-spacing:0.14em; text-transform:uppercase;
+  color:var(--lat);
+  border:1px solid rgba(95,179,196,0.35);
+  padding:5px 12px; border-radius:100px;
+  background:rgba(95,179,196,0.035);
+}
+.venue-main{
+  color:#eef2f7;
+  border-color:rgba(95,179,196,0.55);
+  background:rgba(95,179,196,0.09);
+  box-shadow:0 0 0 1px rgba(95,179,196,0.08), 0 10px 26px rgba(0,0,0,0.16);
+}
+.venue .dot{ width:6px; height:6px; border-radius:50%; background:var(--lat); box-shadow:0 0 10px var(--lat); }
+.venue-place{
+  font-family:'JetBrains Mono', monospace;
+  font-size:11px;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:#7d89a6;
+  margin-bottom:24px;
+}
+
+h1.title{
+  font-family:'Fraunces', serif;
+  font-optical-sizing:auto;
+  font-weight:400;
+  font-size:clamp(2.1rem, 5.2vw, 3.9rem);
+  line-height:1.04;
+  letter-spacing:-0.015em;
+  margin:0 0 8px;
+  max-width:16ch;
+}
+h1.title .em{
+  font-style:italic;
+  font-weight:500;
+  color:var(--lat);
+}
+.subtitle{
+  font-size:clamp(1.02rem,1.6vw,1.22rem);
+  color:#aeb8c9;
+  font-weight:400;
+  max-width:44ch;
+  margin:20px 0 34px;
+  line-height:1.5;
+}
+
+/* authors */
+.authors{
+  display:flex; flex-wrap:wrap; gap:4px 26px;
+  font-size:1.02rem;
+  margin-bottom:6px;
+}
+.authors .a{ color:#eef2f7; }
+.authors sup{ color:var(--lat); font-family:'JetBrains Mono',monospace; font-size:0.7em; }
+.affil{
+  font-size:0.86rem; color:#8794a8;
+  font-family:'JetBrains Mono', monospace;
+  margin-bottom:30px; line-height:1.7;
+}
+.affil sup{ color:var(--lat); }
+
+/* action buttons */
+.links{ display:flex; flex-wrap:wrap; gap:12px; }
+.btn{
+  display:inline-flex; align-items:center; gap:9px;
+  font-family:'JetBrains Mono', monospace;
+  font-size:0.82rem; letter-spacing:0.03em;
+  text-decoration:none;
+  padding:11px 18px;
+  border-radius:var(--radius);
+  border:1px solid rgba(255,255,255,0.18);
+  color:#eef2f7;
+  background:rgba(255,255,255,0.04);
+  transition:.18s ease;
+}
+.btn:hover{ background:rgba(255,255,255,0.12); border-color:rgba(255,255,255,0.4); transform:translateY(-1px); }
+.btn.primary{
+  background:var(--signal); border-color:var(--signal); color:#fff;
+}
+.btn.primary:hover{ background:var(--signal-d); }
+.btn svg{ width:15px; height:15px; }
+
+/* ============ SECTION SCAFFOLD ============ */
+section{ padding:78px 0; }
+.eyebrow{
+  font-family:'JetBrains Mono', monospace;
+  font-size:12px; letter-spacing:0.2em; text-transform:uppercase;
+  color:var(--signal);
+  display:flex; align-items:center; gap:12px;
+  margin-bottom:20px;
+}
+.eyebrow::before{
+  content:""; width:26px; height:1px; background:var(--signal); display:inline-block;
+}
+h2{
+  font-family:'Fraunces', serif;
+  font-weight:400;
+  font-size:clamp(1.7rem, 3.4vw, 2.5rem);
+  line-height:1.1;
+  letter-spacing:-0.01em;
+  margin:0 0 22px;
+}
+h2 .it{ font-style:italic; }
+h3{
+  font-family:'Fraunces', serif;
+  font-weight:500;
+  font-size:1.28rem;
+  margin:0 0 10px;
+  letter-spacing:-0.01em;
+}
+p{ margin:0 0 18px; }
+.lead{ font-size:1.16rem; color:var(--ink-text); line-height:1.6; }
+strong{ font-weight:600; }
+.muted{ color:var(--muted-text); }
+
+/* ============ ABSTRACT ============ */
+.abstract{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:40px;
+  max-width:860px; margin:0 auto;
+  align-items:start;
+}
+.abstract-side{
+  position:relative;
+  padding-top:8px;
+  min-width:26px;
+}
+.abstract-side span{
+  display:block;
+  writing-mode:vertical-rl;
+  transform:rotate(180deg);
+  font-family:'JetBrains Mono', monospace;
+  font-size:16px; font-weight:500; letter-spacing:0.32em; text-transform:uppercase;
+  color:var(--signal);
+  white-space:nowrap;
+}
+.abstract-side::after{
+  content:""; position:absolute; left:50%; top:auto; bottom:0;
+  width:1px; height:calc(100% - 118px);
+  background:linear-gradient(180deg, var(--signal), transparent);
+  opacity:.4;
+}
+.abstract-body{
+  font-family:'Fraunces', serif;
+  font-weight:300;
+  font-size:1.32rem;
+  line-height:1.62;
+  color:var(--ink-text);
+  margin:0;
+  letter-spacing:-0.005em;
+}
+.abstract-body strong{
+  font-weight:500;
+  font-style:italic;
+}
+.abstract-body::first-letter{
+  font-weight:400;
+  color:var(--ink-text);
+}
+
+/* ============ THE DUALITY (signature) ============ */
+.duality{
+  background:var(--ink);
+  color:#eef2f7;
+  border-top:1px solid #000; border-bottom:1px solid #000;
+}
+.duality h2{ color:#fff; }
+.duality .eyebrow{ color:var(--lat); }
+.duality .eyebrow::before{ background:var(--lat); }
+.split{
+  display:grid; grid-template-columns:1fr auto 1fr; gap:0;
+  align-items:stretch;
+  margin-top:36px;
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:6px;
+  overflow:hidden;
+}
+.space-card{ padding:34px 30px; }
+.space-card.noisy{ background:rgba(255,255,255,0.02); }
+.space-card.clean{ background:var(--paper); color:var(--ink-text); }
+.space-card .tag{
+  font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.16em;
+  text-transform:uppercase; margin-bottom:14px; display:inline-block;
+}
+.space-card.noisy .tag{ color:var(--haze); }
+.space-card.clean .tag{ color:var(--signal); }
+.space-card h3{ color:inherit; margin-bottom:12px; }
+.space-card p{ font-size:0.98rem; margin-bottom:0; }
+.space-card.noisy p{ color:#aeb8c9; }
+.space-card.clean p{ color:var(--muted-text); }
+.space-card .formula{
+  margin-top:18px; padding-top:16px;
+  border-top:1px dashed rgba(255,255,255,0.14);
+  font-size:0.95rem;
+}
+.space-card.clean .formula{ border-top-color:var(--line); }
+.bridge{
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  background:linear-gradient(180deg, var(--ink-2), var(--ink-3));
+  padding:0 30px; min-width:150px;
+  position:relative;
+}
+.bridge-line{
+  position:absolute; left:0; right:0; top:50%;
+  height:1px;
+  background:linear-gradient(90deg, transparent, var(--haze) 25%, var(--lat) 50%, var(--haze) 75%, transparent);
+  opacity:.5;
+}
+.bridge-node{
+  position:relative; z-index:2;
+  min-width:78px; height:52px; padding:0 16px; border-radius:100px;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--ink);
+  border:1px solid rgba(95,179,196,0.5);
+  box-shadow:0 0 0 6px var(--ink-3);
+}
+.bridge-eq{ color:#fff; font-size:0.95rem; line-height:1; }
+.bridge-eq mjx-container{ color:#fff !important; margin:0 !important; }
+.bridge-cap{
+  position:absolute; z-index:2;
+  bottom:26px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:9.5px; letter-spacing:0.06em; text-transform:uppercase;
+  color:var(--haze); text-align:center; line-height:1.3;
+  max-width:120px;
+}
+.bridge svg{ width:38px; height:38px; }
+
+/* ============ CONTRIBUTIONS ============ */
+.contribs{ counter-reset:c; list-style:none; padding:0; margin:26px 0 0; }
+.contrib{
+  counter-increment:c;
+  position:relative;
+  padding:18px 0 18px 44px;
+  border-top:1px solid var(--line);
+  font-size:1.02rem; line-height:1.6;
+}
+.contrib:last-child{ border-bottom:1px solid var(--line); }
+.contrib::before{
+  content:"(" counter(c) ")";
+  position:absolute; left:0; top:18px;
+  font-family:'JetBrains Mono', monospace;
+  font-size:0.82rem; color:var(--signal);
+}
+
+/* ============ FIGURE / PLOT PLACEHOLDERS ============ */
+.figure{
+  margin:34px 0 8px;
+  background:var(--paper-2);
+  border:1px solid var(--line);
+  border-radius:6px;
+  overflow:hidden;
+}
+.figure .frame{
+  min-height:340px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:14px;
+  background:
+    linear-gradient(135deg, rgba(13,16,48,0.02) 25%, transparent 25%) -20px 0/40px 40px,
+    linear-gradient(225deg, rgba(13,16,48,0.02) 25%, transparent 25%) -20px 0/40px 40px,
+    var(--paper-2);
+  color:var(--muted-text);
+  text-align:center; padding:40px;
+}
+.figure .frame.tall{ min-height:440px; }
+.figure .ph-icon{
+  width:46px; height:46px; border-radius:8px;
+  border:1.5px dashed var(--haze);
+  display:flex; align-items:center; justify-content:center;
+  color:var(--haze);
+}
+.figure .ph-icon svg{ width:22px; height:22px; }
+.figure .ph-label{
+  font-family:'JetBrains Mono',monospace; font-size:0.78rem; letter-spacing:0.06em;
+  color:var(--muted-text);
+}
+.figure .ph-hint{ font-size:0.8rem; color:var(--haze); max-width:40ch; }
+.figure figcaption{
+  padding:12px 16px;
+  border-top:1px solid var(--line);
+  font-size:0.84rem; color:var(--muted-text); line-height:1.45;
+  background:var(--paper);
+}
+.figure figcaption b{ color:var(--ink-text); font-family:'Fraunces',serif; font-style:italic; font-weight:500; }
+
+/* GIF feature figure — darker, since NSPG viz lives in noisy space */
+.figure.gif .frame{
+  background:
+    radial-gradient(circle at 30% 40%, rgba(95,179,196,0.10), transparent 55%),
+    radial-gradient(circle at 72% 55%, rgba(47,109,176,0.14), transparent 55%),
+    var(--ink);
+  color:#aeb8c9;
+  min-height:260px;
+  padding:18px;
+}
+.figure.gif{ border-color:var(--ink-3); }
+.figure.gif .ph-icon{ border-color:var(--lat); color:var(--lat); }
+.figure.gif .ph-label{ color:#c2cbd8; }
+.figure.gif .ph-hint{ color:var(--haze); }
+.figure.gif figcaption{ background:var(--ink-2); border-top-color:var(--ink-3); color:#a3adbf; }
+.figure.gif figcaption b{ color:#fff; }
+
+/* ---- Denoising animation figure ---- */
+.denoise-fig{ border-color:var(--ink-3); background:var(--ink); overflow:hidden; max-width:560px; margin-left:auto; }
+.denoise-wrap{ position:relative; background:var(--ink); }
+.denoise-wrap canvas{ display:block; width:100%; height:auto; max-height:360px; object-fit:contain; }
+.denoise-steplabel{
+  position:absolute; top:14px; left:16px; z-index:3;
+  font-family:'JetBrains Mono', monospace;
+  font-size:11px; letter-spacing:0.06em;
+  color:var(--lat);
+  background:rgba(16,22,35,0.72);
+  border:1px solid rgba(95,179,196,0.3);
+  padding:4px 10px; border-radius:100px;
+  backdrop-filter:blur(2px);
+}
+.denoise-axis{
+  position:absolute; z-index:3;
+  font-family:'JetBrains Mono', monospace;
+  font-size:9.5px; letter-spacing:0.08em; text-transform:uppercase;
+  color:var(--haze);
+}
+.denoise-axis-x{ bottom:10px; right:14px; }
+.denoise-axis-y{ top:50%; left:10px; transform:rotate(-90deg); transform-origin:left center; }
+.denoise-fig figcaption{ background:var(--ink-2); border-top-color:var(--ink-3); color:#a3adbf; }
+.denoise-fig figcaption b{ color:#fff; }
+
+.fig-grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:22px; }
+
+/* ---- Stacked gradient comparison panels ---- */
+.grad-stack{ display:grid; gap:16px; }
+.grad-panel{ position:relative; margin:0; }
+.grad-tag{
+  position:absolute; top:12px; left:12px; z-index:3;
+  font-family:'JetBrains Mono', monospace;
+  font-size:10.5px; letter-spacing:0.04em; font-weight:500;
+  padding:4px 10px; border-radius:100px;
+  background:rgba(16,22,35,0.72);
+  backdrop-filter:blur(2px);
+}
+.grad-tag-hi{ color:var(--lat); border:1px solid rgba(95,179,196,0.4); }
+.grad-tag-lo{ color:var(--haze); border:1px solid rgba(125,137,166,0.4); }
+
+/* ---- Tiling grid for composing separate plots into one panel ---- */
+.tile-grid{
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:2px;
+  background:var(--line);
+}
+.tile-grid-2{ grid-template-columns:repeat(2, 1fr); }
+.tile-grid-3{ grid-template-columns:repeat(3, 1fr); }
+.tile-grid-4{ grid-template-columns:repeat(4, 1fr); }
+.tile-grid img{ display:block; width:100%; height:auto; }
+.tile-wide{ grid-column:1 / -1; aspect-ratio:16/7 !important; }
+.tile{
+  aspect-ratio:4/3;
+  background:
+    linear-gradient(135deg, rgba(16,22,35,0.02) 25%, transparent 25%) -10px 0/20px 20px,
+    linear-gradient(225deg, rgba(16,22,35,0.02) 25%, transparent 25%) -10px 0/20px 20px,
+    var(--paper-2);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+  color:var(--muted-text);
+}
+.tile span{ font-family:'JetBrains Mono', monospace; font-size:0.8rem; }
+.tile small{ font-family:'JetBrains Mono', monospace; font-size:0.62rem; color:var(--haze); }
+
+/* ============ ALGORITHM LISTING ============ */
+.algo{
+  border:1px solid var(--line-2);
+  border-radius:6px;
+  background:var(--paper-2);
+  overflow:hidden;
+}
+.algo-head{
+  background:var(--ink);
+  padding:14px 24px;
+}
+.algo-title{
+  font-family:'JetBrains Mono', monospace;
+  font-size:0.82rem; letter-spacing:0.04em;
+  color:#eef2f7;
+}
+.algo-body{ padding:24px 28px 20px; }
+.algo-req{
+  font-size:0.96rem; color:var(--ink-text);
+  padding-bottom:14px; margin-bottom:8px;
+  border-bottom:1px solid var(--line);
+}
+.algo-steps{
+  list-style:none; counter-reset:algo; margin:0; padding:0;
+}
+.algo-steps > li{
+  counter-increment:algo;
+  position:relative;
+  padding:5px 0 5px 34px;
+  font-size:0.97rem; line-height:1.55;
+  color:var(--ink-text);
+}
+.algo-steps > li::before{
+  content:counter(algo) ":";
+  position:absolute; left:0; top:5px;
+  font-family:'JetBrains Mono', monospace;
+  font-size:0.82rem; color:var(--haze);
+}
+.algo-sub{
+  list-style:none; counter-reset:algosub; margin:6px 0 2px; padding:0;
+}
+.algo-sub > li{
+  counter-increment:algosub;
+  position:relative;
+  padding:4px 0 4px 34px;
+  font-size:0.95rem; line-height:1.5;
+  color:var(--muted-text);
+}
+.algo-sub > li::before{
+  content:counter(algo) "." counter(algosub);
+  position:absolute; left:0; top:4px;
+  font-family:'JetBrains Mono', monospace;
+  font-size:0.78rem; color:var(--line-2);
+}
+.algo .kw{ color:var(--signal); font-weight:500; font-family:'JetBrains Mono', monospace; font-size:0.88em; }
+.algo-note{
+  padding:14px 28px;
+  border-top:1px solid var(--line);
+  background:var(--paper);
+  font-size:0.88rem; color:var(--muted-text); font-style:italic;
+}
+
+/* ============ EXPANDABLE FIGURES ============ */
+.more-figs{
+  margin-top:24px;
+  border:1px solid var(--line-2);
+  border-radius:6px;
+  background:var(--paper-2);
+}
+.more-figs summary{
+  list-style:none;
+  cursor:pointer;
+  display:flex; align-items:center; gap:16px;
+  padding:18px 24px;
+  user-select:none;
+}
+.more-figs summary::-webkit-details-marker{ display:none; }
+.more-figs summary:hover{ background:var(--paper); }
+.more-label{
+  font-family:'Fraunces', serif; font-weight:500;
+  font-size:1.1rem; color:var(--ink-text);
+  white-space:nowrap;
+}
+.more-sub{
+  font-size:0.86rem; color:var(--muted-text);
+  flex:1; min-width:0;
+}
+.more-chevron{
+  color:var(--signal);
+  display:flex; align-items:center;
+  transition:transform .25s ease;
+}
+.more-chevron svg{ width:20px; height:20px; }
+.more-figs[open] .more-chevron{ transform:rotate(180deg); }
+.more-body{
+  padding:4px 24px 24px;
+  display:grid; gap:22px;
+  border-top:1px solid var(--line);
+}
+.more-body .fig-grid-2{ margin:0; }
+.more-body .figure{ margin:0; }
+.more-figs[open] summary{ border-bottom:0; }
+
+/* ============ METHOD STEPS ============ */
+.pipeline{ margin-top:30px; display:grid; gap:16px; }
+.pstep{
+  display:grid; grid-template-columns:auto 1fr;
+  gap:22px; align-items:start;
+  background:var(--paper-2);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:22px 26px;
+}
+.pstep .pk{
+  font-family:'JetBrains Mono',monospace; font-size:0.75rem;
+  color:#fff; background:var(--ink);
+  padding:5px 9px; border-radius:4px; letter-spacing:0.04em;
+  white-space:nowrap;
+}
+.pstep h3{ font-size:1.1rem; margin-bottom:5px; }
+.pstep p{ margin-bottom:0; font-size:0.97rem; color:var(--muted-text); }
+
+/* ---- Method subsections (Background / Core Idea / Framework) ---- */
+.mstage{
+  display:grid;
+  grid-template-columns:minmax(0, 1.08fr) minmax(0, 0.92fr);
+  gap:56px;
+  align-items:center;
+  padding:44px 0;
+  border-top:1px solid var(--line);
+}
+.mstage:first-of-type{ border-top:0; }
+.mstage.mstage-top{ align-items:start; }
+.mstage.reverse{ grid-template-columns:minmax(0, 0.86fr) minmax(0, 1.14fr); }
+.mstage.reverse .mstage-media{ order:-1; }
+.mstage-kicker{
+  font-family:'JetBrains Mono', monospace;
+  font-size:11px; letter-spacing:0.16em; text-transform:uppercase;
+  color:var(--signal);
+  display:flex; align-items:center; gap:10px;
+  margin-bottom:14px;
+}
+.mstage-kicker .mstage-num{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:22px; height:22px; border-radius:50%;
+  border:1px solid var(--signal); color:var(--signal);
+  font-size:11px;
+}
+.mstage h3{
+  font-family:'Fraunces', serif; font-weight:500;
+  font-size:1.5rem; line-height:1.15; letter-spacing:-0.01em;
+  margin:0 0 12px;
+}
+.mstage p{ font-size:1rem; color:var(--muted-text); margin:0 0 14px; }
+.mstage p:last-child{ margin-bottom:0; }
+.mstage p strong{ color:var(--ink-text); font-weight:600; }
+.mstage-media{ min-width:0; }
+.mstage-media .figure{ margin:0; }
+
+.eqbox{
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:6px 20px; margin:22px 0;
+  overflow-x:auto;
+}
+
+/* ============ RESULTS TABLE ============ */
+.res-h{
+  font-family:'Fraunces', serif; font-weight:500;
+  font-size:1.35rem; letter-spacing:-0.01em;
+  margin:44px 0 8px;
+}
+.res-p{ margin-bottom:20px; }
+.res-p + .tablewrap{ margin-top:0; }
+.tablewrap{ overflow-x:auto; margin-top:30px; border:1px solid var(--line); border-radius:6px; }
+table.results{
+  width:100%; border-collapse:collapse;
+  font-size:0.9rem;
+  min-width:640px;
+}
+table.results th, table.results td{
+  padding:11px 14px; text-align:right;
+  border-bottom:1px solid var(--line);
+}
+table.results th:first-child, table.results td:first-child{
+  text-align:left; font-weight:500;
+}
+table.results thead th{
+  background:var(--ink); color:#eef2f7;
+  font-family:'JetBrains Mono',monospace; font-size:0.72rem;
+  letter-spacing:0.05em; text-transform:uppercase; font-weight:500;
+  position:sticky; top:0;
+}
+table.results thead th.ours{ color:var(--lat); }
+table.results tbody tr:hover{ background:var(--paper); }
+table.results td.ours{
+  background:rgba(47,109,176,0.07);
+  font-weight:600; color:var(--ink-text);
+  font-family:'JetBrains Mono',monospace;
+}
+table.results tr.total td{
+  border-top:2px solid var(--ink);
+  font-weight:600; background:var(--paper);
+}
+table.results tr.total td.ours{ background:rgba(47,109,176,0.12); }
+.tbl-note{ font-size:0.8rem; color:var(--muted-text); margin-top:12px; font-style:italic; }
+
+.stat-row{ display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-top:34px; }
+.stat{
+  background:var(--paper-2); border:1px solid var(--line);
+  border-radius:6px; padding:26px 24px;
+}
+.stat .big{
+  font-family:'Fraunces',serif; font-weight:400;
+  font-size:2.6rem; line-height:1; letter-spacing:-0.02em;
+  color:var(--ink-text);
+}
+.stat .big .plus{ color:var(--signal); }
+.stat .lbl{ font-size:0.9rem; color:var(--muted-text); margin-top:10px; line-height:1.4; }
+
+/* ============ BIBTEX ============ */
+.citeblock{ background:var(--ink); color:#c2cbd8; }
+.citeblock h2{ color:#fff; }
+.citeblock .eyebrow{ color:var(--lat); }
+.citeblock .eyebrow::before{ background:var(--lat); }
+pre.bib{
+  background:var(--ink-2);
+  border:1px solid var(--ink-3);
+  border-radius:6px;
+  padding:24px 26px;
+  overflow-x:auto;
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.84rem; line-height:1.75;
+  color:#aeb8c9;
+  margin-top:26px;
+}
+pre.bib .k{ color:var(--lat); }
+pre.bib .v{ color:#cfe0f0; }
+.copybtn{
+  margin-top:16px;
+  font-family:'JetBrains Mono',monospace; font-size:0.8rem;
+  background:transparent; color:var(--lat);
+  border:1px solid rgba(95,179,196,0.4);
+  padding:9px 16px; border-radius:var(--radius); cursor:pointer;
+  transition:.18s;
+}
+.copybtn:hover{ background:rgba(95,179,196,0.1); }
+
+/* ============ FOOTER ============ */
+footer{
+  background:var(--ink); color:#8794a8;
+  border-top:1px solid #000;
+  padding:44px 0;
+  font-size:0.86rem;
+}
+footer .wrap{ display:flex; flex-wrap:wrap; justify-content:space-between; gap:16px; align-items:center; }
+footer a{ color:#c2cbd8; text-decoration:none; border-bottom:1px solid transparent; }
+footer a:hover{ border-bottom-color:var(--lat); }
+footer .mono{ font-family:'JetBrains Mono',monospace; font-size:0.78rem; }
+
+
+
+/* ============ POLISHED METHOD LAYOUT OVERRIDES ============ */
+#method{
+  background:
+    linear-gradient(180deg, #ffffff 0%, #f7f9fb 100%) !important;
+}
+#method .wrap{ max-width:1120px; }
+.mstage{
+  grid-template-columns:minmax(0, 1.02fr) minmax(0, 0.98fr);
+  gap:64px;
+  padding:56px 0;
+}
+.mstage.reverse{
+  grid-template-columns:minmax(420px, 0.92fr) minmax(0, 1.08fr);
+}
+.mstage.mstage-top{ align-items:center; }
+.mstage-text{ max-width:560px; }
+.mstage-text .micro-note{
+  display:grid;
+  grid-template-columns:34px 1fr;
+  gap:13px;
+  align-items:start;
+  margin-top:18px;
+  padding:16px 18px;
+  border:1px solid var(--line);
+  background:linear-gradient(180deg, #fff, #f8fafc);
+  border-radius:8px;
+  box-shadow:0 8px 24px rgba(16,22,35,0.04);
+}
+.micro-note .mn-icon{
+  width:34px; height:34px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'JetBrains Mono', monospace;
+  color:var(--signal); border:1px solid rgba(47,109,176,0.28);
+  background:#fff;
+}
+.micro-note p{ margin:0; font-size:0.91rem; line-height:1.55; }
+.eqbox{
+  overflow:visible;
+  padding:14px 18px;
+  margin:18px 0;
+  background:linear-gradient(180deg, #ffffff, #f7f9fb);
+  border:1px solid var(--line-2);
+  border-radius:8px;
+  box-shadow:0 10px 30px rgba(16,22,35,0.045);
+}
+.eqbox mjx-container{
+  max-width:100% !important;
+  overflow:visible !important;
+  white-space:normal !important;
+}
+.eqbox mjx-container[display="true"]{
+  margin:0 !important;
+  font-size:0.92em !important;
+}
+
+.eq-label{
+  margin:20px 0 8px;
+  font-family:'JetBrains Mono', monospace;
+  font-size:10.5px;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:var(--signal);
+}
+.eq-label + .eqbox{ margin-top:0 !important; }
+.denoise-fig{
+  max-width:560px;
+  margin-left:auto !important;
+  border-radius:8px;
+  box-shadow:0 22px 48px rgba(16,22,35,0.18);
+}
+.denoise-wrap canvas{ max-height:360px; object-fit:cover; }
+.denoise-fig figcaption,
+.figure.gif figcaption{
+  padding:14px 18px;
+  font-size:0.86rem;
+  line-height:1.5;
+}
+
+.core-visual{
+  width:100%;
+  max-width:465px;
+  margin:0;
+  background:
+    radial-gradient(circle at 16% 14%, rgba(95,179,196,0.11), transparent 32%),
+    radial-gradient(circle at 88% 84%, rgba(47,109,176,0.14), transparent 38%),
+    var(--ink);
+  border:1px solid rgba(255,255,255,0.11);
+  border-radius:10px;
+  overflow:hidden;
+  box-shadow:0 24px 60px rgba(16,22,35,0.22);
+}
+.core-visual-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:16px 18px 13px;
+  border-bottom:1px solid rgba(255,255,255,0.09);
+}
+.core-visual-title{
+  font-family:'Fraunces', serif;
+  font-style:italic;
+  font-weight:500;
+  color:#eef2f7;
+  font-size:1.04rem;
+  letter-spacing:-0.01em;
+}
+.core-visual-badge{
+  font-family:'JetBrains Mono', monospace;
+  font-size:10px;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:var(--lat);
+  border:1px solid rgba(95,179,196,0.35);
+  border-radius:100px;
+  padding:4px 8px;
+  white-space:nowrap;
+}
+.core-visual-body{ padding:16px; display:grid; gap:12px; }
+.objective-row{
+  display:grid;
+  grid-template-columns:168px 1fr;
+  gap:13px;
+  align-items:stretch;
+  background:rgba(255,255,255,0.045);
+  border:1px solid rgba(255,255,255,0.09);
+  border-radius:8px;
+  overflow:hidden;
+}
+.objective-row.is-primary{
+  border-color:rgba(95,179,196,0.34);
+  box-shadow:inset 0 0 0 1px rgba(95,179,196,0.08);
+}
+.objective-shot{
+  position:relative;
+  min-height:148px;
+  background:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:8px;
+}
+.objective-shot img{
+  width:100%;
+  height:100%;
+  max-height:148px;
+  object-fit:contain;
+  display:block;
+}
+.objective-label{
+  position:absolute;
+  top:8px;
+  left:8px;
+  z-index:2;
+  font-family:'JetBrains Mono', monospace;
+  font-size:9.5px;
+  letter-spacing:0.09em;
+  text-transform:uppercase;
+  color:#fff;
+  background:rgba(16,22,35,0.82);
+  border:1px solid rgba(255,255,255,0.18);
+  border-radius:100px;
+  padding:4px 7px;
+}
+.is-primary .objective-label{ color:var(--lat); border-color:rgba(95,179,196,0.45); }
+.objective-copy{
+  padding:13px 13px 12px 0;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+.objective-kicker{
+  font-family:'JetBrains Mono', monospace;
+  font-size:10px;
+  letter-spacing:0.10em;
+  text-transform:uppercase;
+  color:var(--lat);
+  margin-bottom:6px;
+}
+.objective-row:not(.is-primary) .objective-kicker{ color:#aeb8c9; }
+.objective-copy p{
+  margin:0;
+  color:#c6cfdd;
+  font-size:0.82rem;
+  line-height:1.48;
+}
+.objective-copy b{
+  color:#fff;
+  font-family:'Fraunces', serif;
+  font-style:italic;
+  font-weight:500;
+}
+.core-visual-foot{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:1px;
+  background:rgba(255,255,255,0.08);
+}
+.core-metric{
+  padding:12px 15px 13px;
+  background:rgba(23,32,51,0.98);
+}
+.core-metric span{
+  display:block;
+  font-family:'JetBrains Mono', monospace;
+  font-size:9.5px;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:#7d89a6;
+  margin-bottom:5px;
+}
+.core-metric strong{
+  display:block;
+  color:#eef2f7;
+  font-size:0.82rem;
+  line-height:1.35;
+  font-weight:500;
+}
+.core-visual figcaption{
+  padding:14px 18px 16px;
+  border-top:1px solid rgba(255,255,255,0.09);
+  background:rgba(16,22,35,0.72);
+  color:#aeb8c9;
+  font-size:0.85rem;
+  line-height:1.5;
+}
+.core-visual figcaption b{ color:#fff; font-family:'Fraunces', serif; font-style:italic; font-weight:500; }
+
+.framework-panel{
+  max-width:500px;
+  margin-left:auto;
+  background:var(--ink);
+  color:#eef2f7;
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:10px;
+  overflow:hidden;
+  box-shadow:0 24px 60px rgba(16,22,35,0.20);
+}
+.framework-panel-head{
+  padding:18px 22px;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(95,179,196,0.12), transparent 42%),
+    linear-gradient(135deg, var(--ink), var(--ink-2));
+  border-bottom:1px solid rgba(255,255,255,0.10);
+}
+.framework-panel-head .meta{
+  font-family:'JetBrains Mono', monospace;
+  font-size:10px;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:var(--lat);
+  margin-bottom:6px;
+}
+.framework-panel-head h4{
+  font-family:'Fraunces', serif;
+  font-weight:500;
+  font-size:1.25rem;
+  letter-spacing:-0.01em;
+  margin:0;
+}
+.loop-card{
+  padding:18px;
+  display:grid;
+  gap:12px;
+}
+.loop-step{
+  display:grid;
+  grid-template-columns:42px 1fr;
+  gap:13px;
+  align-items:start;
+  padding:13px;
+  border:1px solid rgba(255,255,255,0.10);
+  border-radius:8px;
+  background:rgba(255,255,255,0.04);
+  position:relative;
+}
+.loop-step::after{
+  content:"";
+  position:absolute;
+  left:33px;
+  bottom:-13px;
+  width:1px;
+  height:13px;
+  background:linear-gradient(180deg, rgba(95,179,196,0.55), transparent);
+}
+.loop-step:last-child::after{ display:none; }
+.loop-num{
+  width:34px; height:34px;
+  border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'JetBrains Mono', monospace;
+  font-size:11px;
+  color:var(--lat);
+  background:rgba(95,179,196,0.08);
+  border:1px solid rgba(95,179,196,0.34);
+}
+.loop-step h5{
+  margin:0 0 4px;
+  color:#fff;
+  font-family:'Fraunces', serif;
+  font-size:1.02rem;
+  font-weight:500;
+}
+.loop-step p{
+  margin:0;
+  color:#aeb8c9;
+  font-size:0.84rem;
+  line-height:1.48;
+}
+.framework-equation{
+  margin:0 18px 18px;
+  padding:14px 16px;
+  background:#fff;
+  color:var(--ink-text);
+  border-radius:8px;
+  border:1px solid rgba(255,255,255,0.12);
+  font-size:0.86rem;
+  text-align:center;
+}
+.framework-equation mjx-container[display="true"]{ margin:0 !important; font-size:0.92em !important; }
+.framework-foot{
+  padding:13px 18px 15px;
+  background:var(--ink-2);
+  border-top:1px solid rgba(255,255,255,0.10);
+  color:#aeb8c9;
+  font-size:0.84rem;
+  line-height:1.45;
+}
+.framework-foot b{ color:#fff; font-weight:600; }
+
+@media (max-width: 900px){
+  .mstage, .mstage.reverse{ grid-template-columns:1fr; gap:28px; }
+  .mstage.reverse .mstage-media{ order:0; }
+  .mstage-text, .core-visual, .framework-panel, .denoise-fig{ max-width:100%; margin-left:0 !important; }
+}
+@media (max-width: 560px){
+  .objective-row{ grid-template-columns:1fr; }
+  .objective-copy{ padding:12px 13px 14px; }
+  .objective-shot{ min-height:190px; }
+  .core-visual-foot{ grid-template-columns:1fr; }
+  .eqbox mjx-container[display="true"], .framework-equation mjx-container[display="true"]{ font-size:0.78em !important; }
+}
+
+
+/* ============ EXPERIMENTAL MEDIA + INTERACTIVE RESULTS ============ */
+.paper-note{
+  display:inline-flex; align-items:center; gap:8px;
+  font-family:'JetBrains Mono', monospace;
+  font-size:11px; letter-spacing:0.10em; text-transform:uppercase;
+  color:var(--signal);
+  border:1px solid rgba(47,109,176,0.22);
+  background:#fff;
+  padding:5px 10px; border-radius:100px;
+  margin:4px 0 20px;
+}
+.paper-note::before{ content:""; width:6px; height:6px; border-radius:50%; background:var(--signal); }
+.rollout-showcase{
+  margin:38px 0 42px;
+  background:var(--ink);
+  color:#eef2f7;
+  border-radius:12px;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,0.10);
+  box-shadow:0 24px 60px rgba(16,22,35,0.16);
+}
+.rollout-head{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:18px;
+  align-items:end;
+  padding:24px 26px 20px;
+  background:
+    radial-gradient(circle at 18% 10%, rgba(95,179,196,0.16), transparent 34%),
+    linear-gradient(135deg, var(--ink), var(--ink-2));
+  border-bottom:1px solid rgba(255,255,255,0.10);
+}
+.rollout-head h3{
+  color:#fff; font-size:1.45rem; margin:0 0 8px;
+}
+.rollout-head p{
+  color:#aeb8c9; margin:0; max-width:66ch; font-size:0.96rem; line-height:1.55;
+}
+.rollout-badge{
+  font-family:'JetBrains Mono', monospace;
+  font-size:10px; letter-spacing:0.12em; text-transform:uppercase;
+  color:var(--lat);
+  border:1px solid rgba(95,179,196,0.34);
+  border-radius:100px; padding:6px 10px; white-space:nowrap;
+}
+.rollout-grid{
+  display:grid;
+  grid-template-columns:repeat(3, minmax(0,1fr));
+  gap:1px;
+  background:rgba(255,255,255,0.08);
+}
+.rollout-card{
+  background:var(--ink-2);
+  min-height:235px;
+  display:flex;
+  flex-direction:column;
+}
+.rollout-media{
+  position:relative;
+  aspect-ratio:4/3;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.00)),
+    var(--ink);
+  display:flex; align-items:center; justify-content:center;
+  overflow:hidden;
+}
+.rollout-media img,
+.rollout-media video{
+  width:100%; height:100%; object-fit:cover; display:block;
+}
+.rollout-card.missing .rollout-media::after{
+  content:"Add media in assets folder";
+  position:absolute; inset:14px;
+  border:1px dashed rgba(95,179,196,0.42);
+  border-radius:8px;
+  color:var(--lat);
+  display:flex; align-items:center; justify-content:center;
+  text-align:center;
+  font-family:'JetBrains Mono', monospace;
+  font-size:10px; letter-spacing:0.08em; text-transform:uppercase;
+  padding:12px;
+}
+.rollout-copy{ padding:13px 14px 15px; }
+.rollout-copy span{
+  display:block;
+  font-family:'JetBrains Mono', monospace;
+  font-size:9.5px; letter-spacing:0.12em; text-transform:uppercase;
+  color:#7d89a6; margin-bottom:5px;
+}
+.rollout-copy strong{
+  color:#eef2f7; font-weight:500; font-size:0.91rem; line-height:1.3;
+}
+.overview-card{
+  display:grid;
+  grid-template-columns:minmax(0, 0.42fr) minmax(0, 0.58fr);
+  gap:0;
+  margin:34px 0 40px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  overflow:hidden;
+  background:#fff;
+  box-shadow:0 18px 50px rgba(16,22,35,0.08);
+}
+.overview-copy{
+  padding:26px 28px;
+  background:linear-gradient(180deg, #fff, #f8fafc);
+  border-right:1px solid var(--line);
+}
+.overview-copy .eyebrow-mini{
+  font-family:'JetBrains Mono', monospace;
+  color:var(--signal);
+  font-size:10.5px; letter-spacing:0.16em; text-transform:uppercase;
+  margin-bottom:12px;
+}
+.overview-copy h3{ font-size:1.45rem; margin-bottom:10px; }
+.overview-copy p{ font-size:0.95rem; color:var(--muted-text); margin:0; line-height:1.58; }
+.bar-panel{ padding:22px 24px 24px; }
+.bar-tabs{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px; }
+.bar-tab{
+  border:1px solid var(--line-2);
+  background:#fff;
+  color:var(--muted-text);
+  font-family:'JetBrains Mono', monospace;
+  font-size:10px; letter-spacing:0.05em; text-transform:uppercase;
+  border-radius:100px;
+  padding:7px 10px;
+  cursor:pointer;
+  transition:.18s ease;
+}
+.bar-tab:hover{ border-color:var(--signal); color:var(--signal); }
+.bar-tab.active{ background:var(--ink); color:#fff; border-color:var(--ink); }
+.bar-chart{ display:grid; gap:11px; }
+.bar-row{
+  display:grid;
+  grid-template-columns:82px 1fr 58px;
+  gap:12px;
+  align-items:center;
+}
+.bar-name{ font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--ink-text); }
+.bar-track{
+  height:26px;
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:100px;
+  overflow:hidden;
+  position:relative;
+}
+.bar-fill{
+  height:100%;
+  width:0;
+  background:linear-gradient(90deg, rgba(47,109,176,0.62), rgba(95,179,196,0.86));
+  border-radius:100px;
+  transition:width .45s ease;
+}
+.bar-row.is-ours .bar-fill{
+  background:linear-gradient(90deg, var(--signal), var(--lat));
+}
+.bar-value{ font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--muted-text); text-align:right; }
+.bar-row.is-ours .bar-name,
+.bar-row.is-ours .bar-value{ color:var(--signal); font-weight:600; }
+.bar-caption{ margin-top:14px; font-size:0.82rem; color:var(--muted-text); font-style:italic; }
+.plot-grid{
+  display:grid;
+  gap:16px;
+}
+.plot-grid-2{ grid-template-columns:repeat(2, minmax(0,1fr)); }
+.plot-grid-3{ grid-template-columns:repeat(3, minmax(0,1fr)); }
+.plot-grid-5{ grid-template-columns:repeat(5, minmax(0,1fr)); }
+.plot-card{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:8px;
+  overflow:hidden;
+}
+.plot-card img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  background:#fff;
+}
+.plot-card figcaption{
+  padding:9px 11px;
+  border-top:1px solid var(--line);
+  font-family:'JetBrains Mono', monospace;
+  font-size:10px;
+  letter-spacing:0.04em;
+  color:var(--muted-text);
+  background:var(--paper);
+}
+.curves-mosaic{
+  display:grid;
+  grid-template-columns:repeat(3, minmax(0,1fr));
+  gap:18px;
+}
+.curves-mosaic .plot-card img{
+  width:100%;
+  height:auto;
+  aspect-ratio:4/3;
+  min-height:260px;
+  object-fit:contain;
+}
+.plot-grid-3 .plot-card img,
+.plot-grid-2 .plot-card img{
+  width:100%;
+  height:auto;
+  min-height:280px;
+  object-fit:contain;
+}
+.plot-grid-2 .plot-card img{ min-height:330px; }
+.more-body{
+  padding:20px 26px 28px;
+}
+.ablations-intro{
+  margin:0 0 18px;
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:16px;
+  align-items:end;
+}
+.ablations-intro p{ margin:0; max-width:70ch; }
+.asset-note{
+  font-size:0.78rem;
+  color:var(--muted-text);
+  margin-top:10px;
+  font-style:italic;
+}
+@media (max-width: 980px){
+  .rollout-grid{ grid-template-columns:repeat(2, minmax(0,1fr)); }
+  .overview-card{ grid-template-columns:1fr; }
+  .overview-copy{ border-right:0; border-bottom:1px solid var(--line); }
+  .curves-mosaic{ grid-template-columns:repeat(2, minmax(0,1fr)); }
+  .plot-grid-5{ grid-template-columns:repeat(3, minmax(0,1fr)); }
+}
+@media (max-width: 760px){
+  .rollout-head{ grid-template-columns:1fr; align-items:start; }
+  .plot-grid-2, .plot-grid-3, .plot-grid-5, .curves-mosaic{ grid-template-columns:1fr; }
+  .bar-row{ grid-template-columns:68px 1fr 48px; }
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 760px){
+  body{ font-size:16px; }
+  section{ padding:56px 0; }
+  .split{ grid-template-columns:1fr; }
+  .split > *{ min-width:0; }
+  .space-card{ overflow-wrap:break-word; }
+  .space-card .formula{ overflow-x:auto; }
+  .pstep{ grid-template-columns:1fr; gap:12px; }
+  .pstep > *{ min-width:0; }
+  .pstep .pk{ justify-self:start; }
+  .mstage{ grid-template-columns:1fr; gap:24px; padding:34px 0; }
+  .mstage > *{ min-width:0; }
+  .mstage.reverse .mstage-media{ order:0; }
+  .mstage h3{ font-size:1.3rem; }
+  .tile-grid{ grid-template-columns:repeat(2, 1fr); }
+  .tile-grid-3{ grid-template-columns:repeat(2, 1fr); }
+  .tile-grid-4{ grid-template-columns:repeat(2, 1fr); }
+  .eqbox{ font-size:0.85rem; }
+  .bridge{ padding:22px; min-height:auto; min-width:auto; }
+  .bridge-line{ left:50%; right:auto; top:0; bottom:0; width:1px; height:auto;
+    background:linear-gradient(180deg, transparent, var(--signal), transparent); }
+  .bridge-cap{ position:static; bottom:auto; margin-top:12px; max-width:none; }
+  .fig-grid-2{ grid-template-columns:1fr; }
+  .contrib{ padding-left:0; }
+  .contrib::before{ position:static; display:inline; margin-right:8px; }
+  .abstract{ grid-template-columns:1fr; gap:14px; }
+  .abstract-side{ padding-top:0; }
+  .abstract-side span{ writing-mode:horizontal-tb; transform:none; }
+  .abstract-side::after{ display:none; }
+  .abstract-body{ font-size:1.12rem; }
+  .algo-body{ padding:20px 18px 16px; overflow-x:auto; }
+  .algo-steps > li, .algo-sub > li{ padding-left:26px; word-break:break-word; }
+  .algo-req, .algo-title{ font-size:0.88rem; }
+  .more-figs summary{ flex-wrap:wrap; gap:8px 12px; }
+  .more-sub{ flex-basis:100%; order:3; }
+  .space-card.clean{ order:3; }
+  footer .wrap{ flex-direction:column; align-items:flex-start; }
+}
+@media (prefers-reduced-motion: reduce){
+  *{ animation:none !important; transition:none !important; scroll-behavior:auto; }
+}
+</style>
 </head>
 <body>
-  <h1>🚧 Website Under Construction 🚧</h1>
-  <p>Welcome to Mahmoud Selim’s personal website. Please check back soon!</p>
-  <div class="spinner"></div>
 
-  <footer>
-    © <script>document.write(new Date().getFullYear())</script> Mahmoud Selim
-  </footer>
+<!-- =================== HERO =================== -->
+<header class="hero">
+  <canvas id="noisefield"></canvas>
+  <div class="hero-inner">
+    <div class="venue-row" aria-label="Accepted venues">
+      <div class="venue venue-main"><span class="dot"></span>ICML 2026 Main Conference</div>
+      <div class="venue"><span class="dot"></span>ICML 2026 DEMO Workshop</div>
+    </div>
+    <div class="venue-place">Seoul, South Korea</div>
+
+    <h1 class="title">Noisy-Space Policy Gradient for <span class="em">diffusion policies</span> in offline RL</h1>
+
+    <p class="subtitle">A noisy-space action-value function that assigns value to diffusion latents through their induced clean actions, and a policy gradient that optimizes them without backpropagating through denoising.</p>
+
+    <div class="authors">
+      <span class="a">Mahmoud Selim<sup>1,2</sup></span>
+      <span class="a">Cristina Cipriani<sup>1</sup></span>
+      <span class="a">Karl H. Johansson<sup>2</sup></span>
+    </div>
+    <div class="affil">
+      <sup>1</sup>TRATON CV AB, Stockholm &nbsp;·&nbsp; <sup>2</sup>KTH Royal Institute of Technology, Stockholm
+    </div>
+
+    <div class="links">
+      <a class="btn primary" href="#" id="pdf-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3v5h5M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>
+        Paper (PDF)
+      </a>
+      <a class="btn" href="https://github.com/mahmoud-selim/NSPG" id="gh-link">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.2.8-.5v-2c-3.2.7-3.9-1.4-3.9-1.4-.5-1.3-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.8 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.6 1.7.2 2.9.1 3.2.8.8 1.2 1.8 1.2 3.1 0 4.5-2.7 5.5-5.3 5.8.4.4.8 1.1.8 2.2v3.3c0 .3.2.6.8.5 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.7 18.3.5 12 .5z"/></svg>
+        Code
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- =================== ABSTRACT =================== -->
+<section id="abstract">
+  <div class="wrap">
+    <div class="abstract">
+      <div class="abstract-side"><span>Abstract</span></div>
+      <p class="abstract-body">Diffusion policies offer a powerful and expressive parameterization for continuous control. Yet, their integration with reinforcement learning remains conceptually and algorithmically challenging. In this work, we address this gap by introducing a noisy-space action-value (Q-)function that assigns values to diffusion latents through the distribution of executed actions induced by the denoising process. We show that this construction admits a precise semantic interpretation and derive a noisy-space policy gradient (NSPG) that optimizes noisy latents using only clean action-space value estimates. Building on this result, we formulate a KL-regularized policy improvement over noisy latents and show that the resulting objective admits a diffusion-compatible regression form, avoiding backpropagation through the denoising process. Empirical results on state-based D4RL benchmarks and vision-based OGBench tasks demonstrate that the proposed noisy-space objective provides a principled and effective basis for training diffusion policies in offline reinforcement learning.</p>
+    </div>
+  </div>
+</section>
+
+<!-- =================== THE MISMATCH (signature duality) =================== -->
+<section class="duality" id="idea">
+  <div class="wrap">
+    <div class="eyebrow">Motivation</div>
+    <h2>A mismatch between two spaces</h2>
+    <p class="measure" style="color:#aeb8c9;">A diffusion policy generates actions by iteratively denoising a sequence of noisy latents into a clean sample, so optimization takes place in a noisy latent space. Reinforcement-learning objectives, however, are defined over the executed actions that interact with the environment. Prior methods either treat the diffusion model purely as an action sampler or evaluate a critic directly on noisy latents. We instead define the connection between the two spaces explicitly through $Q_{\text{noisy}}$.</p>
+
+    <div class="split">
+      <div class="space-card noisy">
+        <span class="tag">where optimization happens</span>
+        <h3>Noisy latent space</h3>
+        <p>Policy improvement, sampling, and the denoising trajectory all live here. Latents $x^{(k)}$ share the action's dimension but are not actions — the environment never sees them.</p>
+        <div class="formula">$x^{(T)} \rightarrow \cdots \rightarrow x^{(0)}$</div>
+      </div>
+
+      <div class="bridge">
+        <span class="bridge-line" aria-hidden="true"></span>
+        <div class="bridge-node">
+          <span class="bridge-eq">$Q_{\text{noisy}}$</span>
+        </div>
+        <span class="bridge-cap">bridges via induced actions</span>
+      </div>
+
+      <div class="space-card clean">
+        <span class="tag">where value is defined</span>
+        <h3>Clean action space</h3>
+        <p>Rewards, transitions, and the critic $Q^{\pi}(s,a)$ are defined only over executed actions $a \in \mathcal{A}$. This is the only space with genuine MDP semantics.</p>
+        <div class="formula">$Q^{\pi}(s,a) = \mathbb{E}\!\left[\textstyle\sum_t \gamma^t r(s_t,a_t)\right]$</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== NSPG VISUALIZATION (GIF slot) =================== -->
+<!-- =================== METHOD =================== -->
+<section id="method" style="background:var(--paper-2); border-top:1px solid var(--line); border-bottom:1px solid var(--line);">
+  <div class="wrap">
+    <div class="eyebrow">Method</div>
+    <h2>How NSPG works</h2>
+
+    <!-- Stage 1: Background -->
+    <div class="mstage">
+      <div class="mstage-text">
+        <div class="mstage-kicker"><span class="mstage-num">1</span> Background</div>
+        <h3>Diffusion policies act through noisy latents</h3>
+        <p>A diffusion policy does not emit an action in one pass. It starts from noise and runs a reverse denoising trajectory $x^{(T)} \rightarrow \cdots \rightarrow x^{(0)}$, where only the final sample is executed as $a=x^{(0)}$.</p>
+        <p>The key point is that an intermediate latent $x^{(k)}$ is not an action in the MDP. It is a conditioning point in the generation process, and after the remaining denoising steps it can induce several compatible clean actions.</p>
+        <div class="micro-note"><div class="mn-icon">Q</div><p><strong>Design principle.</strong> Value belongs to executable actions. NSPG keeps the critic in clean action space, then lifts the resulting signal back to noisy space.</p></div>
+      </div>
+      <div class="mstage-media">
+        <figure class="figure denoise-fig">
+          <div class="denoise-wrap">
+            <div class="denoise-steplabel" id="denoise-step">latent x⁽ᵏ⁾ → compatible actions</div>
+            <canvas id="denoise-canvas" width="720" height="480" aria-label="Animated 2D diffusion: a single noisy latent x-k induces a distribution over clean actions"></canvas>
+            <div class="denoise-axis denoise-axis-x">action dim 1</div>
+            <div class="denoise-axis denoise-axis-y">action dim 2</div>
+          </div>
+          <figcaption><b>Reading the plot.</b> The central marker is one fixed latent $x^{(k)}$. Dashed trajectories show possible denoising outcomes, dots are sampled clean actions, and contours mark the induced clean-action distribution.</figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <!-- Stage 2: Core Idea -->
+    <div class="mstage mstage-top reverse">
+      <div class="mstage-text">
+        <div class="mstage-kicker"><span class="mstage-num">2</span> Core idea</div>
+        <h3>Value a latent by the actions it can execute</h3>
+        <p>NSPG gives a noisy latent a value only through the clean actions it can produce. Instead of asking the critic to score $x^{(k)}$ directly, we evaluate executable actions and average their returns under the distribution induced by that latent.</p>
+        <div class="eq-label">Definition 3.1 &middot; noisy-space action value</div>
+        <div class="eqbox" style="margin:0 0 16px;">
+          $$\begin{aligned}
+          Q_{\mathrm{noisy}}(s,x^{(k)},k)
+          &= \mathbb{E}_{a\sim\pi_\theta(\cdot\mid s,x^{(k)},k)}
+          \left[Q^{\pi_\theta}(s,a)\right].
+          \end{aligned}$$
+        </div>
+        <p>The gradient then becomes an advantage-weighted score in noisy space: compatible actions with above-average value reinforce the latent direction, while below-average actions are suppressed.</p>
+        <div class="eq-label">Theorem 3.4 &middot; noisy-space policy gradient</div>
+        <div class="eqbox" style="margin:0 0 16px;">
+          $$\begin{aligned}
+          \nabla_{x^{(k)}} Q_{\mathrm{noisy}}
+          &= \mathbb{E}_{a\sim\pi_\theta}
+          \left[A_{\mathrm{noisy}}(s,a,x^{(k)},k)\right. \\
+          &\qquad\left.\cdot\nabla_{x^{(k)}}\log q_k(x^{(k)}\mid a)\right].
+          \end{aligned}$$
+        </div>
+        <p style="font-size:0.95rem;">This separates NSPG from decoded guidance, as used for example in Diffusion Q-Learning-style updates. Decoding first commits to one clean estimate $\hat a(x^{(k)})$ and then optimizes $Q(s,\hat a)$; NSPG keeps the full compatible-action distribution, where multimodal behavior and high-value modes can diverge.</p>
+      </div>
+
+
+      <div class="mstage-media">
+        <figure class="core-visual" aria-label="Comparison of NSPG and decoded guidance">
+          <div class="core-visual-head">
+            <div class="core-visual-title">Two ways to lift value into noisy space</div>
+            <div class="core-visual-badge">gradient geometry</div>
+          </div>
+          <div class="core-visual-body">
+            <div class="objective-row is-primary">
+              <div class="objective-shot">
+                <span class="objective-label">NSPG</span>
+                <img src="assets/nspg_grad.gif" alt="NSPG noisy-space gradient field">
+              </div>
+              <div class="objective-copy">
+                <div class="objective-kicker">distribution-aware</div>
+                <p><b>Expected-value guidance.</b> The latent is optimized through all compatible clean actions, so high-value samples can pull the update even when they are not the densest mode.</p>
+              </div>
+            </div>
+            <div class="objective-row">
+              <div class="objective-shot">
+                <span class="objective-label">Decoded</span>
+                <img src="assets/decoded_grad.gif" alt="Decoded-action gradient field">
+              </div>
+              <div class="objective-copy">
+                <div class="objective-kicker">single estimate</div>
+                <p><b>Decoded guidance.</b> In DQL-style updates, the latent is first collapsed to one clean estimate $\hat a(x^{(k)})$, then the critic is applied to that single point.</p>
+              </div>
+            </div>
+          </div>
+          <div class="core-visual-foot">
+            <div class="core-metric"><span>critic queries</span><strong>clean executable actions only</strong></div>
+            <div class="core-metric"><span>optimization</span><strong>noisy latent update direction</strong></div>
+          </div>
+          <figcaption><b>Conceptual contrast.</b> NSPG preserves the compatible-action distribution; decoded guidance commits to one clean proxy before value optimization.</figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <!-- Stage 3: Framework -->
+    <div class="mstage mstage-top">
+      <div class="mstage-text">
+        <div class="mstage-kicker"><span class="mstage-num">3</span> Framework</div>
+        <h3>NSAC: actor–critic in two spaces</h3>
+        <p>Noisy-Space Actor–Critic alternates between a <strong>pessimistic action-space critic</strong> (a lower-confidence-bound over an ensemble) and a <strong>diffusion actor</strong> improved by the noisy-space gradient.</p>
+        <p>The improvement objective rewrites into a denoising regression with a value-guidance term, so the actor trains exactly like a diffusion model — with no backpropagation through the denoising trajectory, and the critic never evaluated on noisy latents.</p>
+        <p>Each iteration updates the critic toward a conservative Bellman target, then nudges the actor along $\nabla_{x^{(k)}}Q_{\text{noisy}}$. Value estimation stays entirely in action space; policy improvement happens in noisy latent space.</p>
+      </div>
+      <div class="mstage-media">
+        <div class="algo">
+          <div class="algo-head">
+            <span class="algo-title">Algorithm 1 &nbsp;·&nbsp; NSAC</span>
+          </div>
+          <div class="algo-body">
+            <div class="algo-req"><span class="kw">Require:</span> dataset $\mathcal{D}$; actor $\pi_\theta$; critic ensemble $\{Q_{\phi_h}\}$; $\lambda$, $\eta$, $\rho$.</div>
+            <ol class="algo-steps">
+              <li>Initialize actor $\theta$ and critics $\{\phi_h\}$.</li>
+              <li><span class="kw">while</span> not converged <span class="kw">do</span>
+                <ol class="algo-sub">
+                  <li>Sample minibatch $(s,a,r,s') \sim \mathcal{D}$.</li>
+                  <li>Sample step $k$, noise $\epsilon$; form $x^{(k)}$ via $q(x^{(k)}\mid a)$.</li>
+                  <li>Sample $a' \sim \pi_\theta(\cdot \mid s')$.</li>
+                  <li>Update critic with the LCB Bellman objective.</li>
+                  <li>Compute $\nabla_{x^{(k)}}Q_{\text{noisy}}$ (NSPG).</li>
+                  <li>Update actor with the value-guided denoising loss.</li>
+                </ol>
+              </li>
+              <li><span class="kw">end while</span></li>
+              <li><span class="kw">return</span> $\pi_\theta$.</li>
+            </ol>
+          </div>
+          <div class="algo-note">Value enters the actor only through $Q_{\text{noisy}}$ and its gradient.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== CONTRIBUTIONS =================== -->
+<section id="contributions">
+  <div class="wrap measure">
+    <div class="eyebrow">Contributions</div>
+    <h2>Contributions</h2>
+    <p class="muted">This work makes the following contributions to value-based optimization of diffusion policies in offline reinforcement learning:</p>
+    <ul class="contribs">
+      <li class="contrib">
+        We identify a mismatch in value-based optimization for diffusion policies, arising between noisy latent-space policy representations and action-space value functions.
+      </li>
+      <li class="contrib">
+        We introduce a noisy-space action-value function $Q_{\text{noisy}}$ that maps diffusion latents to expected action-space returns, and derive a noisy-space policy gradient (NSPG) that enables value-based learning without evaluating critics on noisy variables or backpropagating through the denoising process.
+      </li>
+      <li class="contrib">
+        We develop Noisy-Space Actor–Critic (NSAC), an actor–critic algorithm that performs policy improvement in noisy latent space while maintaining value estimation in action space.
+      </li>
+      <li class="contrib">
+        We evaluate NSAC on state-based D4RL benchmarks and vision-based OGBench tasks, and report performance relative to prior methods across locomotion, navigation, and manipulation settings.
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- =================== RESULTS =================== -->
+<section id="results" style="background:var(--paper-2); border-top:1px solid var(--line);">
+  <div class="wrap">
+    <div class="eyebrow">Results</div>
+    <h2>Empirical evaluation</h2>
+    <p class="muted measure">We evaluate NSAC on state-based D4RL benchmarks (locomotion, AntMaze, Adroit) and vision-based OGBench tasks, comparing against representative offline RL baselines spanning policy-regularization, conservative value estimation, and diffusion- and flow-based methods. DAC is included as the closest score-based diffusion actor–critic baseline. All results use four random seeds and a fixed budget of two million gradient steps.</p>
+
+    <div class="rollout-showcase">
+      <div class="rollout-head">
+        <div>
+          <h3>Policies in action</h3>
+          <p>Representative rollouts highlight the breadth of the evaluation suite: dexterous manipulation and vision-based control from OGBench.</p>
+        </div>
+        <div class="rollout-badge">demo videos</div>
+      </div>
+      <div class="rollout-grid rollout-grid-3">
+        <div class="rollout-card">
+          <div class="rollout-media"><img src="assets/pencloned.gif" alt="Pen-Cloned rollout" onerror="this.closest('.rollout-card').classList.add('missing'); this.remove();"></div>
+          <div class="rollout-copy"><span>Adroit</span><strong>Pen-Cloned</strong></div>
+        </div>
+        <div class="rollout-card">
+          <div class="rollout-media"><video src="assets/puzzle-3x3-v0_task4.mp4" autoplay muted loop playsinline preload="metadata" aria-label="Puzzle 3x3 rollout"></video></div>
+          <div class="rollout-copy"><span>OGBench</span><strong>Puzzle 3×3</strong></div>
+        </div>
+        <div class="rollout-card">
+          <div class="rollout-media"><video src="assets/cube.mp4" autoplay muted loop playsinline preload="metadata" aria-label="Cube double rollout"></video></div>
+          <div class="rollout-copy"><span>OGBench</span><strong>Cube double</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="overview-card" id="score-overview">
+      <div class="overview-copy">
+        <div class="eyebrow-mini">aggregate comparison</div>
+        <h3>Aggregate performance</h3>
+        <p>Switch between benchmark groups to compare aggregate scores across methods. This view summarizes the headline results; the per-task tables and diagnostic plots are kept below for a more granular readout.</p>
+      </div>
+      <div class="bar-panel">
+        <div class="bar-tabs" role="tablist" aria-label="Benchmark groups">
+          <button class="bar-tab active" data-view="state">State total</button>
+          <button class="bar-tab" data-view="locomotion">Locomotion</button>
+          <button class="bar-tab" data-view="antmaze">AntMaze</button>
+          <button class="bar-tab" data-view="adroit">Adroit</button>
+          <button class="bar-tab" data-view="ogbench">OGBench</button>
+        </div>
+        <div class="bar-chart" id="bar-chart" aria-live="polite"></div>
+        <div class="bar-caption" id="bar-caption">D4RL state-based aggregate normalized scores.</div>
+      </div>
+    </div>
+
+    <!-- D4RL narrative + table -->
+    <h3 class="res-h">State-based control (D4RL)</h3>
+    <p class="muted measure res-p">The D4RL suite spans well-behaved locomotion, sparse-reward AntMaze navigation with many suboptimal trajectories, and dexterous Adroit manipulation with limited data coverage. These settings stress the coupling between value estimation and policy optimization differently — from smooth continuous control to long-horizon, multimodal decision-making.</p>
+    <div class="tablewrap">
+      <table class="results">
+        <thead>
+          <tr><th>Benchmark (total)</th><th>CQL</th><th>IQL</th><th>DQL</th><th>IDQL-A</th><th>DAC</th><th class="ours">NSAC</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Locomotion (9 tasks)</td><td>698.5</td><td>692.6</td><td>791.2</td><td>739.2</td><td>836.4</td><td class="ours">861.7</td></tr>
+          <tr><td>AntMaze (4 tasks)</td><td>145.6</td><td>228.3</td><td>258.2</td><td>300.4</td><td>275.4</td><td class="ours">337.2</td></tr>
+          <tr><td>Adroit (2 tasks)</td><td>62.4</td><td>108.8</td><td>130.1</td><td>—</td><td>145.2</td><td class="ours">168.5</td></tr>
+          <tr class="total"><td>State-based total</td><td>906.5</td><td>1029.7</td><td>1179.5</td><td>—</td><td>1257.0</td><td class="ours">1367.4</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="tbl-note">Average normalized scores on D4RL (mean over four runs). Gains are most pronounced on AntMaze, where value guidance through executable actions matters most. Full per-task numbers with standard deviations are in the paper.</p>
+
+
+    <details class="more-figs">
+      <summary>
+        <span class="more-label">Additional plots and ablations</span>
+        <span class="more-sub">Training curves · guidance strength · Monte-Carlo samples · pessimism · critic ensemble</span>
+        <span class="more-chevron" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </span>
+      </summary>
+      <div class="more-body">
+        <div class="ablations-intro">
+          <p class="muted">The ablations isolate the key operational levers in NSAC. Guidance strength is placed here with the other diagnostics so the experimental story stays consolidated rather than fragmented across the page.</p>
+        </div>
+    <figure class="figure">
+      <div class="curves-mosaic">
+        <figure class="plot-card"><img src="assets/HalfCheetah-Medium-V2.png" alt="HalfCheetah Medium learning curve"><figcaption>HalfCheetah medium</figcaption></figure>
+        <figure class="plot-card"><img src="assets/Hopper-Medium-V2.png" alt="Hopper Medium learning curve"><figcaption>Hopper medium</figcaption></figure>
+        <figure class="plot-card"><img src="assets/Walker2d-Medium-V2.png" alt="Walker2d Medium learning curve"><figcaption>Walker2d medium</figcaption></figure>
+        <figure class="plot-card"><img src="assets/HalfCheetah-Medium-Replay-V2.png" alt="HalfCheetah Medium Replay learning curve"><figcaption>HalfCheetah replay</figcaption></figure>
+        <figure class="plot-card"><img src="assets/Hopper-Medium-Replay-V2.png" alt="Hopper Medium Replay learning curve"><figcaption>Hopper replay</figcaption></figure>
+        <figure class="plot-card"><img src="assets/Walker2d-Medium-Replay-V2.png" alt="Walker2d Medium Replay learning curve"><figcaption>Walker2d replay</figcaption></figure>
+        <figure class="plot-card"><img src="assets/HalfCheetah-Medium-Expert-V2.png" alt="HalfCheetah Medium Expert learning curve"><figcaption>HalfCheetah expert</figcaption></figure>
+        <figure class="plot-card"><img src="assets/Hopper-Medium-Expert-V2.png" alt="Hopper Medium Expert learning curve"><figcaption>Hopper expert</figcaption></figure>
+        <figure class="plot-card"><img src="assets/Walkered-Medium-Expert-V2.png" alt="Walker Medium Expert learning curve"><figcaption>Walker expert</figcaption></figure>
+        <figure class="plot-card"><img src="assets/Antmaze-Medium-Play-V0.png" alt="AntMaze Medium Play learning curve"><figcaption>AntMaze med-play</figcaption></figure>
+        <figure class="plot-card"><img src="assets/Antmaze-Medium-Diverse-V0.png" alt="AntMaze Medium Diverse learning curve"><figcaption>AntMaze med-diverse</figcaption></figure>
+        <figure class="plot-card"><img src="assets/Antmaze-Large-Play-V0.png" alt="AntMaze Large Play learning curve"><figcaption>AntMaze large-play</figcaption></figure>
+        <figure class="plot-card"><img src="assets/Antmaze-Large-Diverse-V0.png" alt="AntMaze Large Diverse learning curve"><figcaption>AntMaze large-diverse</figcaption></figure>
+        <figure class="plot-card"><img src="assets/Pen-Human-V1.png" alt="Pen Human learning curve"><figcaption>Pen human</figcaption></figure>
+        <figure class="plot-card"><img src="assets/Pen-Cloned-V1.png" alt="Pen Cloned learning curve"><figcaption>Pen cloned</figcaption></figure>
+      </div>
+      <figcaption><b>Training dynamics.</b> Per-environment learning curves show stable convergence across locomotion, sparse-reward navigation, and dexterous manipulation tasks.</figcaption>
+    </figure>
+
+        <figure class="figure">
+          <div class="plot-grid plot-grid-3">
+            <figure class="plot-card"><img src="assets/guidance_walker.png" alt="Guidance strength ablation on Walker2d"><figcaption>Guidance · Walker2d</figcaption></figure>
+            <figure class="plot-card"><img src="assets/guidance_maze.png" alt="Guidance strength ablation on AntMaze"><figcaption>Guidance · AntMaze</figcaption></figure>
+            <figure class="plot-card"><img src="assets/guidance_pen.png" alt="Guidance strength ablation on Pen"><figcaption>Guidance · Pen</figcaption></figure>
+          </div>
+          <figcaption><b>Guidance strength $\lambda$.</b> Moderate value guidance balances improvement against dataset support; overly aggressive guidance can degrade learning.</figcaption>
+        </figure>
+        <figure class="figure">
+          <div class="plot-grid plot-grid-3">
+            <figure class="plot-card"><img src="assets/nspg_walker.png" alt="Monte Carlo sample ablation on Walker2d"><figcaption>MC samples · Walker2d</figcaption></figure>
+            <figure class="plot-card"><img src="assets/nspg_maze.png" alt="Monte Carlo sample ablation on AntMaze"><figcaption>MC samples · AntMaze</figcaption></figure>
+            <figure class="plot-card"><img src="assets/nspg_pen.png" alt="Monte Carlo sample ablation on Pen"><figcaption>MC samples · Pen</figcaption></figure>
+          </div>
+          <figcaption><b>Noisy-space expectation.</b> NSAC remains stable with few Monte-Carlo samples, indicating that $Q_{\text{noisy}}$ can be estimated efficiently.</figcaption>
+        </figure>
+        <figure class="figure">
+          <div class="plot-grid plot-grid-3">
+            <figure class="plot-card"><img src="assets/rho_walker.png" alt="Pessimism coefficient ablation on Walker2d"><figcaption>Pessimism · Walker2d</figcaption></figure>
+            <figure class="plot-card"><img src="assets/rho_maze.png" alt="Pessimism coefficient ablation on AntMaze"><figcaption>Pessimism · AntMaze</figcaption></figure>
+            <figure class="plot-card"><img src="assets/rho_pen.png" alt="Pessimism coefficient ablation on Pen"><figcaption>Pessimism · Pen</figcaption></figure>
+          </div>
+          <figcaption><b>Pessimism coefficient $\rho$.</b> Moderate pessimism controls overestimation while preserving a usable learning signal.</figcaption>
+        </figure>
+        <figure class="figure">
+          <div class="plot-grid plot-grid-2">
+            <figure class="plot-card"><img src="assets/ensemble_maze.png" alt="Critic ensemble ablation on AntMaze"><figcaption>Ensemble · AntMaze</figcaption></figure>
+            <figure class="plot-card"><img src="assets/ensemble_pen.png" alt="Critic ensemble ablation on Pen"><figcaption>Ensemble · Pen</figcaption></figure>
+          </div>
+          <figcaption><b>Critic ensemble size.</b> Small ensembles improve reliability, with diminishing returns beyond a modest number of critics.</figcaption>
+        </figure>
+      </div>
+    </details>
+
+    <!-- OGBench narrative + table -->
+    <h3 class="res-h">Vision-based control (OGBench)</h3>
+    <p class="muted measure res-p">OGBench requires learning policies directly from high-dimensional visual observations, where representation learning, multimodal action distributions, and value-based improvement are jointly challenging. We follow recent flow-policy evaluations, using a targeted baseline set of strong methods for high-dimensional visual offline RL.</p>
+    <div class="tablewrap">
+      <table class="results">
+        <thead>
+          <tr><th>OGBench visual task</th><th>IQL</th><th>ReBRAC</th><th>FQL</th><th>DAC</th><th class="ours">NSAC</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>visual-cube-single</td><td>70</td><td>83</td><td>81</td><td>83.7</td><td class="ours">88</td></tr>
+          <tr><td>visual-cube-double</td><td>34</td><td>4</td><td>21</td><td>34</td><td class="ours">36</td></tr>
+          <tr><td>visual-puzzle-3x3</td><td>7</td><td>88</td><td>94</td><td>98.2</td><td class="ours">100</td></tr>
+          <tr><td>visual-puzzle-4x4</td><td>0</td><td>26</td><td>33</td><td>40</td><td class="ours">47.5</td></tr>
+          <tr class="total"><td>OGBench total</td><td>111</td><td>201</td><td>229</td><td>255.9</td><td class="ours">271.5</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="tbl-note">Success rates (%) on vision-based OGBench. NSAC is best or near-best on every task and highest in aggregate, extending the noisy-space formulation beyond state-based control.</p>
+  </div>
+</section>
+
+<!-- =================== CITATION =================== -->
+<section class="citeblock" id="cite">
+  <div class="wrap measure">
+    <div class="eyebrow">Citation</div>
+    <h2>BibTeX</h2>
+    <pre class="bib" id="bibtex"><span class="k">@inproceedings</span>{selim2026noisyspace,
+  <span class="k">title</span>     = {<span class="v">Noisy-Space Policy Gradient for Diffusion Policies in Offline Reinforcement Learning</span>},
+  <span class="k">author</span>    = {<span class="v">Mahmoud Selim and Cristina Cipriani and Karl Henrik Johansson</span>},
+  <span class="k">booktitle</span> = {<span class="v">Forty-third International Conference on Machine Learning</span>},
+  <span class="k">year</span>      = {<span class="v">2026</span>}
+}</pre>
+    <button class="copybtn" id="copybtn">Copy BibTeX</button>
+  </div>
+</section>
+
+<!-- =================== FOOTER =================== -->
+<footer>
+  <div class="wrap">
+    <div>
+      <div style="color:#eef2f7; font-family:'Fraunces',serif; font-size:1.05rem; margin-bottom:4px;">NSPG · Noisy-Space Policy Gradient</div>
+      <div class="mono">ICML 2026 · Main Conference + DEMO Workshop · TRATON CV AB · KTH Royal Institute of Technology</div>
+    </div>
+    <div class="mono">
+      <a href="https://github.com/mahmoud-selim/NSPG">GitHub</a> ·
+      <a href="#" id="pdf-link-2">PDF</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ---------- Hero: latent "noise field" that resolves toward structure ---------- */
+(function(){
+  const cv = document.getElementById('noisefield');
+  if(!cv) return;
+  const ctx = cv.getContext('2d');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let w, h, pts, t = 0;
+  const N = 90;
+
+  function resize(){
+    const r = cv.parentElement.getBoundingClientRect();
+    w = cv.width = r.width * devicePixelRatio;
+    h = cv.height = r.height * devicePixelRatio;
+    cv.style.width = r.width + 'px';
+    cv.style.height = r.height + 'px';
+    seed();
+  }
+  function seed(){
+    pts = [];
+    for(let i=0;i<N;i++){
+      const gx = (i % 12) / 11, gy = Math.floor(i/12) / 7;
+      pts.push({
+        // target (structured) position on a soft lattice
+        tx: (0.08 + gx*0.84) * w,
+        ty: (0.12 + gy*0.78) * h,
+        // start scattered (noisy)
+        x: Math.random()*w,
+        y: Math.random()*h,
+        r: (Math.random()*1.6+0.6)*devicePixelRatio,
+        ph: Math.random()*Math.PI*2
+      });
+    }
+  }
+  function draw(){
+    ctx.clearRect(0,0,w,h);
+    // connective haze
+    for(let i=0;i<pts.length;i++){
+      const a = pts[i];
+      for(let j=i+1;j<pts.length;j++){
+        const b = pts[j];
+        const dx=a.x-b.x, dy=a.y-b.y;
+        const d = Math.sqrt(dx*dx+dy*dy);
+        if(d < 130*devicePixelRatio){
+          ctx.strokeStyle = 'rgba(125,137,166,'+(0.10*(1-d/(130*devicePixelRatio)))+')';
+          ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
+        }
+      }
+    }
+    for(const p of pts){
+      // ease noisy -> structured, with gentle breathing
+      p.x += (p.tx - p.x) * 0.012;
+      p.y += (p.ty - p.y) * 0.012;
+      const jx = Math.sin(t*0.6 + p.ph) * 6 * devicePixelRatio;
+      const jy = Math.cos(t*0.5 + p.ph*1.3) * 6 * devicePixelRatio;
+      const px = p.x + jx, py = p.y + jy;
+      ctx.beginPath();
+      ctx.arc(px, py, p.r, 0, Math.PI*2);
+      ctx.fillStyle = 'rgba(95,179,196,0.6)';
+      ctx.fill();
+    }
+    t += 0.016;
+    if(!reduce) requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+  if(reduce){ draw(); } else { draw(); }
+})();
+
+/* ---------- 2D denoising diffusion animation ---------- */
+(function(){
+  const cv = document.getElementById('denoise-canvas');
+  if(!cv) return;
+  const ctx = cv.getContext('2d');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const label = document.getElementById('denoise-step');
+  const W = cv.width, H = cv.height;
+
+  function gauss(){ let u=0,v=0; while(u===0)u=Math.random(); while(v===0)v=Math.random();
+    return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); }
+
+  // ----- LEFT: source p0, a single 2D Gaussian (the noise the latent lives in) -----
+  const src = { x: W*0.20, y: H*0.50, sx: 42, sy: 48 };
+  // the single latent x^(k): sits BETWEEN the two distributions (not on p0)
+  const latent = { x: W*0.50, y: H*0.50 };
+
+  // ----- RIGHT: target p_data, a Gaussian MIXTURE (bimodal, like the refs) -----
+  const modes = [
+    { x: W*0.76, y: H*0.30, sx: 34, sy: 28, w: 0.34, hi:true  },
+    { x: W*0.72, y: H*0.66, sx: 42, sy: 34, w: 0.44, hi:false },
+    { x: W*0.83, y: H*0.58, sx: 26, sy: 24, w: 0.22, hi:false }
+  ];
+
+  // Curated guide curves: upstream paths are intentionally subtle; the outbound
+  // paths are the main semantic object, one compatible clean action per curve.
+  const inboundLinks = [
+    { sx: src.x+src.sx*0.08, sy: src.y-src.sy*0.64, cx: W*0.32, cy: H*0.30, ox:-13, oy:-6 },
+    { sx: src.x+src.sx*0.64, sy: src.y-src.sy*0.22, cx: W*0.36, cy: H*0.42, ox:-12, oy:-2 },
+    { sx: src.x+src.sx*0.70, sy: src.y+src.sy*0.25, cx: W*0.36, cy: H*0.57, ox:-12, oy: 2 },
+    { sx: src.x+src.sx*0.10, sy: src.y+src.sy*0.70, cx: W*0.32, cy: H*0.68, ox:-13, oy: 7 }
+  ];
+  const outboundGuides = [
+    { tx: W*0.74, ty: H*0.30, cx: W*0.61, cy: H*0.26, hi:true  },
+    { tx: W*0.80, ty: H*0.32, cx: W*0.67, cy: H*0.34, hi:true  },
+    { tx: W*0.69, ty: H*0.65, cx: W*0.59, cy: H*0.62, hi:false },
+    { tx: W*0.75, ty: H*0.69, cx: W*0.64, cy: H*0.77, hi:false },
+    { tx: W*0.84, ty: H*0.56, cx: W*0.70, cy: H*0.47, hi:false }
+  ];
+
+  // ---- density fields (for contour rendering) on a grid ----
+  const GW=100, GH=66, cw=W/GW, ch=H/GH;
+  const srcF=new Float32Array(GW*GH), tgtF=new Float32Array(GW*GH);
+  let srcMax=0, tgtMax=0;
+  for(let j=0;j<GH;j++)for(let i=0;i<GW;i++){
+    const px=(i+0.5)*cw, py=(j+0.5)*ch;
+    const dxs=(px-src.x)/src.sx, dys=(py-src.y)/src.sy;
+    const s=Math.exp(-0.5*(dxs*dxs+dys*dys));
+    srcF[j*GW+i]=s; if(s>srcMax)srcMax=s;
+    let t=0;
+    for(const m of modes){ const dx=(px-m.x)/m.sx, dy=(py-m.y)/m.sy; t+=m.w*Math.exp(-0.5*(dx*dx+dy*dy)); }
+    tgtF[j*GW+i]=t; if(t>tgtMax)tgtMax=t;
+  }
+
+  // marching-squares contour at threshold `thr` over field `F`
+  function contour(F, thr, stroke, lw, alpha){
+    ctx.strokeStyle=stroke.replace('ALPHA', alpha); ctx.lineWidth=lw;
+    ctx.beginPath();
+    for(let j=0;j<GH-1;j++){
+      for(let i=0;i<GW-1;i++){
+        const a=F[j*GW+i], b=F[j*GW+i+1], c=F[(j+1)*GW+i+1], d=F[(j+1)*GW+i];
+        let idx=0; if(a>thr)idx|=8; if(b>thr)idx|=4; if(c>thr)idx|=2; if(d>thr)idx|=1;
+        if(idx===0||idx===15) continue;
+        const x0=i*cw+cw*0.5, y0=j*ch+ch*0.5, x1=x0+cw, y1=y0+ch;
+        function ip(va,vb,pa,pb){ const t=(thr-va)/(vb-va); return pa+(pb-pa)*t; }
+        const T={x:ip(a,b,x0,x1),y:y0}, Rr={x:x1,y:ip(b,c,y0,y1)},
+              B={x:ip(d,c,x0,x1),y:y1}, L={x:x0,y:ip(a,d,y0,y1)};
+        const seg=(p,q)=>{ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);};
+        switch(idx){
+          case 1: case 14: seg(L,B); break;
+          case 2: case 13: seg(B,Rr); break;
+          case 3: case 12: seg(L,Rr); break;
+          case 4: case 11: seg(T,Rr); break;
+          case 6: case 9:  seg(T,B); break;
+          case 7: case 8:  seg(L,T); break;
+          case 5: seg(L,T); seg(B,Rr); break;
+          case 10: seg(T,Rr); seg(L,B); break;
+        }
+      }
+    }
+    ctx.stroke();
+  }
+
+  // One visible action sample per outbound curve. This keeps the message
+  // crisp: a single noisy latent induces multiple compatible clean actions.
+  const parts = outboundGuides.map((g, idx) => ({
+    guide: idx,
+    hi: g.hi,
+    delay: idx * 0.045,
+    speed: 0.98
+  }));
+
+  const PASS_MS=3400, HOLD_MS=1600;
+  let phase='fan', last=performance.now(), clock=0, tau=0;
+  const colTeal='rgba(95,179,196,', colGrey='rgba(125,137,166,', colFlow='rgba(150,163,191,';
+  function ease(t){ return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2; }
+  function bez(p0,p1,p2,t){ const u=1-t; return u*u*p0+2*u*t*p1+t*t*p2; }
+
+  function draw(now){
+    const dt=now-last; last=now; clock+=dt;
+    if(phase==='fan'){ tau=Math.min(1,clock/PASS_MS); if(tau>=1){phase='hold';clock=0;} }
+    else if(phase==='hold'){ tau=1; if(clock>=HOLD_MS){phase='fan';clock=0;} }
+
+    label.textContent = tau<0.85 ? 'x⁽ᵏ⁾ → compatible clean actions'
+                                 : 'induced clean-action samples';
+    ctx.clearRect(0,0,W,H);
+
+    // faint grid
+    ctx.strokeStyle='rgba(255,255,255,0.028)'; ctx.lineWidth=1;
+    for(let gx=1;gx<6;gx++){ctx.beginPath();ctx.moveTo(W*gx/6,0);ctx.lineTo(W*gx/6,H);ctx.stroke();}
+    for(let gy=1;gy<4;gy++){ctx.beginPath();ctx.moveTo(0,H*gy/4);ctx.lineTo(W,H*gy/4);ctx.stroke();}
+
+    // LEFT source p0 contour rings (grey-blue)
+    const srcLevels=[0.1,0.25,0.45,0.68,0.88];
+    for(const lv of srcLevels) contour(srcF, lv*srcMax, 'rgba(150,163,191,ALPHA)', 1.2, (0.18+lv*0.32).toFixed(3));
+
+    // RIGHT target mixture contours (teal), ALWAYS fully visible
+    const tgtLevels=[0.08,0.2,0.38,0.6,0.82];
+    for(const lv of tgtLevels) contour(tgtF, lv*tgtMax, 'rgba(95,179,196,ALPHA)', 1.2, (0.16+lv*0.42).toFixed(3));
+
+    // Consistent in-canvas labels: concept label above, math object below.
+    function distLabel(title, math, x, y, color){
+      ctx.save();
+      ctx.textAlign='center';
+      ctx.font='600 10px "JetBrains Mono", monospace';
+      ctx.fillStyle=color;
+      ctx.fillText(title, x, y);
+      ctx.font='500 13px "JetBrains Mono", monospace';
+      ctx.fillStyle=color.replace(/0\.([0-9]+)/, '0.94');
+      ctx.fillText(math, x, y+17);
+      ctx.restore();
+    }
+    distLabel('NOISE PRIOR', 'p₀(x)', src.x, src.y-src.sy-55, 'rgba(150,163,191,0.72)');
+    distLabel('CLEAN ACTIONS', 'p_data(a | s)', W*0.78, modes[0].y-modes[0].sy-58, 'rgba(95,179,196,0.80)');
+
+    // Multiple inbound links from p0 to x^(k), making the conditioned latent
+    // visually reachable from the noise prior.
+    ctx.save();
+    ctx.setLineDash([5, 8]);
+    ctx.lineCap='round';
+    for(const [idx, l] of inboundLinks.entries()){
+      const pulse = 0.5 + 0.5*Math.sin(clock*0.0018 + idx*0.65);
+      ctx.strokeStyle='rgba(150,163,191,'+(0.08+0.04*pulse).toFixed(3)+')';
+      ctx.lineWidth = 0.95;
+      ctx.beginPath();
+      ctx.moveTo(l.sx, l.sy);
+      ctx.quadraticCurveTo(l.cx, l.cy, latent.x+l.ox, latent.y+l.oy);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(l.sx, l.sy, 2.4, 0, Math.PI*2);
+      ctx.fillStyle='rgba(150,163,191,0.22)';
+      ctx.fill();
+    }
+    ctx.restore();
+
+    // Persistent outbound guide curves into the clean-action mixture. These are
+    // intentionally emphasized over the inbound paths: they represent the
+    // compatible clean actions induced by the current noisy latent.
+    ctx.save();
+    ctx.setLineDash([7, 6]);
+    ctx.lineCap='round';
+    ctx.shadowColor='rgba(95,179,196,0.30)';
+    ctx.shadowBlur=6;
+    for(const [idx, g] of outboundGuides.entries()){
+      const fade = 0.30 + 0.15*Math.min(1, tau + 0.08*idx);
+      ctx.strokeStyle='rgba(95,179,196,'+fade.toFixed(3)+')';
+      ctx.lineWidth = idx < 2 ? 1.9 : 1.55;
+      ctx.beginPath();
+      ctx.moveTo(latent.x+12, latent.y);
+      ctx.quadraticCurveTo(g.cx, g.cy, g.tx, g.ty);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(g.tx, g.ty, 3.8, 0, Math.PI*2);
+      ctx.fillStyle = g.hi ? 'rgba(95,179,196,0.72)' : 'rgba(125,137,166,0.60)';
+      ctx.fill();
+    }
+    ctx.restore();
+
+    function pathPoint(q, local){
+      const g=outboundGuides[q.guide];
+      const x = bez(latent.x+12, g.cx, g.tx, local);
+      const y = bez(latent.y,    g.cy, g.ty, local);
+      return {x,y};
+    }
+
+    // One animated point per outbound curve.
+    for(const q of parts){
+      const raw = Math.max(0, Math.min(1, (tau-q.delay)/(1-q.delay)));
+      const local = ease(Math.min(1, raw*q.speed));
+      const p=pathPoint(q, local);
+      const a=(0.48+local*0.42).toFixed(3);
+      const col = (q.hi ? colTeal : colGrey) + a + ')';
+
+      // small halo so each individual sample remains legible
+      ctx.beginPath(); ctx.arc(p.x,p.y,6.8,0,Math.PI*2); ctx.fillStyle='rgba(255,255,255,0.055)'; ctx.fill();
+      ctx.beginPath(); ctx.arc(p.x,p.y,3.15,0,Math.PI*2); ctx.fillStyle=col; ctx.fill();
+      ctx.strokeStyle='rgba(255,255,255,0.38)'; ctx.lineWidth=0.8; ctx.stroke();
+    }
+
+    // x^(k) marker: the noisy latent being conditioned on
+    const pulse=(clock%1400)/1400;
+    if(phase==='fan'){ ctx.strokeStyle='rgba(95,179,196,'+(0.32*(1-pulse)).toFixed(3)+')'; ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.arc(latent.x,latent.y,10+pulse*22,0,Math.PI*2); ctx.stroke(); }
+    ctx.beginPath(); ctx.arc(latent.x,latent.y,16,0,Math.PI*2); ctx.fillStyle='rgba(16,22,35,0.82)'; ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,0.16)'; ctx.lineWidth=1; ctx.stroke();
+    ctx.strokeStyle='rgba(95,179,196,0.95)'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.arc(latent.x,latent.y,10,0,Math.PI*2); ctx.stroke();
+    ctx.beginPath(); ctx.arc(latent.x,latent.y,5,0,Math.PI*2); ctx.fillStyle='#fff'; ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,0.96)'; ctx.font='600 16px "JetBrains Mono", monospace';
+    ctx.fillText('x', latent.x-28, latent.y-14);
+    ctx.font='600 11px "JetBrains Mono", monospace'; ctx.fillText('(k)', latent.x-16, latent.y-18);
+
+    if(!reduce) requestAnimationFrame(draw);
+  }
+
+  if(reduce){ tau=1; phase='hold'; last=performance.now(); draw(performance.now()); }
+  else { requestAnimationFrame(draw); }
+})();
+
+
+/* ---------- Interactive aggregate score bars ---------- */
+(function(){
+  const chart = document.getElementById('bar-chart');
+  if(!chart) return;
+  const caption = document.getElementById('bar-caption');
+  const tabs = Array.from(document.querySelectorAll('.bar-tab'));
+  const data = {
+    state: {
+      caption: 'D4RL state-based aggregate normalized scores.',
+      rows: [['CQL',906.5], ['IQL',1029.7], ['DQL',1179.5], ['DAC',1257.0], ['NSAC',1367.4]]
+    },
+    locomotion: {
+      caption: 'Locomotion total over nine D4RL tasks.',
+      rows: [['CQL',698.5], ['IQL',692.6], ['DQL',791.2], ['IDQL-A',739.2], ['DAC',836.4], ['NSAC',861.7]]
+    },
+    antmaze: {
+      caption: 'AntMaze total over four sparse-reward navigation tasks.',
+      rows: [['CQL',145.6], ['IQL',228.3], ['DQL',258.2], ['IDQL-A',300.4], ['DAC',275.4], ['NSAC',337.2]]
+    },
+    adroit: {
+      caption: 'Adroit total over Pen-Human and Pen-Cloned.',
+      rows: [['CQL',62.4], ['IQL',108.8], ['DQL',130.1], ['DAC',145.2], ['NSAC',168.5]]
+    },
+    ogbench: {
+      caption: 'OGBench visual total success-rate score.',
+      rows: [['IQL',111], ['ReBRAC',201], ['FQL',229], ['DAC',255.9], ['NSAC',271.5]]
+    }
+  };
+  function render(view){
+    const spec = data[view] || data.state;
+    const max = Math.max.apply(null, spec.rows.map(r => r[1]));
+    chart.innerHTML = spec.rows.map(([name,value]) => {
+      const pct = Math.max(2, (value / max) * 100).toFixed(2);
+      const ours = name === 'NSAC' ? ' is-ours' : '';
+      return `<div class="bar-row${ours}"><div class="bar-name">${name}</div><div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div><div class="bar-value">${value}</div></div>`;
+    }).join('');
+    if(caption) caption.textContent = spec.caption;
+    tabs.forEach(t => t.classList.toggle('active', t.dataset.view === view));
+  }
+  tabs.forEach(t => t.addEventListener('click', () => render(t.dataset.view)));
+  render('state');
+})();
+
+/* ---------- Copy BibTeX ---------- */
+document.getElementById('copybtn').addEventListener('click', function(){
+  const txt = document.getElementById('bibtex').innerText;
+  navigator.clipboard.writeText(txt).then(()=>{
+    const b = document.getElementById('copybtn');
+    const old = b.textContent;
+    b.textContent = 'Copied ✓';
+    setTimeout(()=>{ b.textContent = old; }, 1600);
+  });
+});
+</script>
+
 </body>
 </html>
