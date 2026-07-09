@@ -1601,22 +1601,22 @@ footer .mono{ font-family:'JetBrains Mono',monospace; font-size:0.78rem; }
     <div class="rollout-showcase">
       <div class="rollout-head">
         <div>
-          <h3>Policies in action</h3>
-          <p>Representative rollouts highlight the breadth of the evaluation suite: dexterous manipulation and vision-based control from OGBench.</p>
+          <h3>Evaluation environments</h3>
+          <p>Representative benchmark environments from the evaluation suite: dexterous manipulation and vision-based OGBench tasks.</p>
         </div>
-        <div class="rollout-badge">demo videos</div>
+        <div class="rollout-badge">environment visuals</div>
       </div>
       <div class="rollout-grid rollout-grid-3">
         <div class="rollout-card">
-          <div class="rollout-media"><img src="assets/pencloned.gif" alt="Pen-Cloned rollout" onerror="this.closest('.rollout-card').classList.add('missing'); this.remove();"></div>
+          <div class="rollout-media"><img src="assets/pencloned.gif" data-fallbacks="assets/PenCloned.gif|assets/penCloned.gif|assets/pen_cloned.gif|assets/pen-cloned.gif|assets/Pen-Cloned.gif|assets/Pen-Cloned-V1.gif|assets/pencloned-v1.gif" alt="Pen-Cloned environment"></div>
           <div class="rollout-copy"><span>Adroit</span><strong>Pen-Cloned</strong></div>
         </div>
         <div class="rollout-card">
-          <div class="rollout-media"><video src="assets/puzzle-3x3-v0_task4.mp4" autoplay muted loop playsinline preload="metadata" aria-label="Puzzle 3x3 rollout"></video></div>
+          <div class="rollout-media"><video src="assets/puzzle-3x3-v0_task4.mp4" data-fallbacks="assets/puzzle-3x3.mp4|assets/Puzzle-3x3.mp4|assets/visual-puzzle-3x3.mp4|assets/puzzle3x3.mp4" autoplay muted loop playsinline preload="metadata" aria-label="Puzzle 3x3 environment"></video></div>
           <div class="rollout-copy"><span>OGBench</span><strong>Puzzle 3×3</strong></div>
         </div>
         <div class="rollout-card">
-          <div class="rollout-media"><video src="assets/cube.mp4" autoplay muted loop playsinline preload="metadata" aria-label="Cube double rollout"></video></div>
+          <div class="rollout-media"><video src="assets/cube.mp4" data-fallbacks="assets/cube-double.mp4|assets/Cube-Double.mp4|assets/visual-cube-double.mp4|assets/cubeDouble.mp4" autoplay muted loop playsinline preload="metadata" aria-label="Cube double environment"></video></div>
           <div class="rollout-copy"><span>OGBench</span><strong>Cube double</strong></div>
         </div>
       </div>
@@ -2108,6 +2108,32 @@ footer .mono{ font-family:'JetBrains Mono',monospace; font-size:0.78rem; }
   }
   tabs.forEach(t => t.addEventListener('click', () => render(t.dataset.view)));
   render('state');
+})();
+
+
+/* ---------- Media fallback handling for local asset naming ---------- */
+(function(){
+  function markMissing(el){
+    const card = el.closest('.rollout-card');
+    if(card) card.classList.add('missing');
+    el.remove();
+  }
+  function candidates(el){
+    const fallbacks = (el.getAttribute('data-fallbacks') || '').split('|').filter(Boolean);
+    return [el.getAttribute('src')].concat(fallbacks);
+  }
+  function setup(el){
+    const list = candidates(el);
+    let idx = 0;
+    function next(){
+      idx += 1;
+      if(idx >= list.length){ markMissing(el); return; }
+      el.src = list[idx];
+      if(el.tagName.toLowerCase() === 'video') el.load();
+    }
+    el.addEventListener('error', next);
+  }
+  document.querySelectorAll('.rollout-media img[data-fallbacks], .rollout-media video[data-fallbacks]').forEach(setup);
 })();
 
 /* ---------- Copy BibTeX ---------- */
