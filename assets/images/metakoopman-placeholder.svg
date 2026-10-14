@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="620" height="400" viewBox="0 0 620 400">
+<rect width="620" height="400" fill="#f0f8f6"/>
+<g stroke="#d8eae5" stroke-width="1"><path d="M60 164H560M60 205H560M60 246H560M60 287H560M110 143V307M210 143V307M310 143V307M410 143V307M510 143V307"/></g>
+<path d="M64 255C142 262 173 205 250 219S359 182 400 203S493 235 560 167L560 226C501 282 454 234 400 233S314 264 250 244S146 286 64 278Z" fill="#d4eae3"/>
+<path d="M64 267C136 282 184 211 250 231S343 211 400 219S496 259 560 198" fill="none" stroke="#23766e" stroke-width="3.5"/>
+<g fill="#23766e"><circle cx="102" cy="263" r="5"/><circle cx="173" cy="236" r="5"/><circle cx="247" cy="233" r="5"/><circle cx="330" cy="223" r="5"/><circle cx="414" cy="221" r="5"/></g>
+<text x="39" y="60" fill="#23766e" font-family="Arial,Helvetica,sans-serif" font-size="27" font-weight="600">MetaKoopman</text>
+<text x="39" y="87" fill="#6d9188" font-family="Arial,Helvetica,sans-serif" font-size="15">Learning dynamics that adapt</text>
+<text x="39" y="367" fill="#71978c" font-family="Arial,Helvetica,sans-serif" font-size="11" letter-spacing="2">BAYESIAN META-LEARNING</text>
+</svg>

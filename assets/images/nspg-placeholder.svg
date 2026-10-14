@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="620" height="400" viewBox="0 0 620 400">
+<rect width="620" height="400" fill="#f6f3fc"/>
+<g fill="#c2b5db"><circle cx="87" cy="171" r="5"/><circle cx="120" cy="205" r="5"/><circle cx="76" cy="235" r="5"/><circle cx="109" cy="263" r="5"/><circle cx="139" cy="169" r="5"/><circle cx="152" cy="246" r="5"/><circle cx="177" cy="210" r="5"/><circle cx="131" cy="226" r="5"/><circle cx="74" cy="285" r="5"/><circle cx="167" cy="276" r="5"/></g>
+<g fill="none" stroke="#d7cce9" stroke-width="2"><path d="M184 194C236 160 267 170 324 183S435 181 513 155"/><path d="M184 225C261 269 296 256 343 225S427 209 523 206"/><path d="M184 254C256 279 294 277 352 258S441 270 516 269"/></g>
+<path d="M192 219C249 252 304 240 348 217S441 209 523 206" fill="none" stroke="#6953a2" stroke-width="4"/>
+<circle cx="525" cy="206" r="11" fill="#6953a2"/><circle cx="516" cy="155" r="7" fill="#b6a3d4"/><circle cx="517" cy="269" r="7" fill="#b6a3d4"/>
+<text x="39" y="60" fill="#6953a2" font-family="Arial,Helvetica,sans-serif" font-size="27" font-weight="600">NSPG</text>
+<text x="39" y="87" fill="#8873a8" font-family="Arial,Helvetica,sans-serif" font-size="15">From noisy latents to better actions</text>
+<text x="39" y="367" fill="#9280ae" font-family="Arial,Helvetica,sans-serif" font-size="11" letter-spacing="2">DIFFUSION POLICY LEARNING</text>
+</svg>

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="620" height="400" viewBox="0 0 620 400">
+<rect width="620" height="400" fill="#f1f6fe"/>
+<g fill="none" stroke="#d7e4f5" stroke-width="2"><path d="M40 259H580M40 188H580"/><path d="M40 224H580" stroke-dasharray="14 14"/></g>
+<g fill="none" stroke-width="3"><path d="M84 255C192 255 234 192 305 192S424 210 536 199" stroke="#a6bedf" stroke-dasharray="6 6"/><path d="M84 255C230 255 270 254 349 238S430 214 536 214" stroke="#2868b2"/><path d="M84 255C210 255 256 288 352 276S435 240 536 253" stroke="#bacce6" stroke-dasharray="6 6"/></g>
+<rect x="130" y="238" width="49" height="28" rx="6" fill="#2868b2"/><rect x="347" y="173" width="42" height="25" rx="5" fill="#9bb5d7"/><rect x="458" y="240" width="42" height="25" rx="5" fill="#c6d7ee"/>
+<text x="39" y="60" fill="#2868b2" font-family="Arial,Helvetica,sans-serif" font-size="27" font-weight="600">ICDP</text>
+<text x="39" y="87" fill="#6f86a4" font-family="Arial,Helvetica,sans-serif" font-size="15">Interaction-aware planning</text>
+<text x="39" y="367" fill="#7892b4" font-family="Arial,Helvetica,sans-serif" font-size="11" letter-spacing="2">AUTONOMOUS DRIVING</text>
+</svg>

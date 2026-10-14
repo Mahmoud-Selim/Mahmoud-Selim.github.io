@@ -1,59 +1,147 @@
 <!DOCTYPE html>
+<!--
+Generated from content/site.json by scripts/build.py.
+For permanent content changes, edit that JSON file and rebuild.
+Copyright © 2026 Mahmoud Selim. All rights reserved.
+No permission is granted by this notice to copy, adapt, or redistribute the original website template. Reuse requires prior written permission from the applicable rights holder, except as permitted by applicable law, platform terms, or any separately applicable third-party license. This notice does not alter the licenses of linked research publications or research code.
+-->
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mahmoud Selim | Website Under Construction</title>
-  <style>
-    body {
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      background: linear-gradient(135deg, #1e293b, #0f172a);
-      color: #f8fafc;
-      font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      text-align: center;
-    }
-    h1 {
-      font-size: 2rem;
-      margin-bottom: 0.5rem;
-    }
-    p {
-      font-size: 1.1rem;
-      color: #cbd5e1;
-    }
-    .spinner {
-      margin-top: 1.5rem;
-      border: 4px solid #334155;
-      border-top: 4px solid #38bdf8;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-      100% {
-        transform: rotate(360deg);
-      }
-    }
-    footer {
-      position: absolute;
-      bottom: 1rem;
-      font-size: 0.9rem;
-      color: #64748b;
-    }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="author" content="Mahmoud Selim">
+  <meta name="description" content="Mahmoud Selim is an industrial Ph.D. student at TRATON Group and KTH Royal Institute of Technology, researching learning, generalization, adaptation, and intelligent behavior in autonomous systems.">
+  <meta name="theme-color" content="#ffffff">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Mahmoud Selim | Learning &amp; Intelligent Autonomous Systems">
+  <meta property="og:description" content="Mahmoud Selim is an industrial Ph.D. student at TRATON Group and KTH Royal Institute of Technology, researching learning, generalization, adaptation, and intelligent behavior in autonomous systems.">
+  <meta property="og:url" content="https://mahmoud-selim.github.io/">
+  <meta name="twitter:card" content="summary">
+  <title>Mahmoud Selim | Learning &amp; Intelligent Autonomous Systems</title>
+  <link rel="canonical" href="https://mahmoud-selim.github.io/">
+  <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/css/theme.css">
+  <link rel="stylesheet" href="assets/css/site.css">
+  <script src="assets/js/site.js" defer></script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "ProfilePage", "url": "https://mahmoud-selim.github.io/", "mainEntity": {"@type": "Person", "name": "Mahmoud Selim", "url": "https://mahmoud-selim.github.io/", "jobTitle": "Industrial Ph.D. student", "email": "mahmoud.selim@scania.com", "affiliation": [{"@type": "Organization", "name": "TRATON Group"}, {"@type": "CollegeOrUniversity", "name": "KTH Royal Institute of Technology"}], "sameAs": ["https://scholar.google.se/citations?hl=en&user=J5m8mIYAAAAJ", "https://eg.linkedin.com/in/mahmoud-selim96"], "knowsAbout": ["Motion planning", "Robot learning", "Reinforcement learning", "Meta-learning", "Autonomous systems"]}}</script>
 </head>
 <body>
-  <h1>🚧 Website Under Construction 🚧</h1>
-  <p>Welcome to Mahmoud Selim’s personal website. Please check back soon!</p>
-  <div class="spinner"></div>
-
-  <footer>
-    © <script>document.write(new Date().getFullYear())</script> Mahmoud Selim
-  </footer>
+  <a class="skip-link" href="#content">Skip to content</a>
+  <header class="site-header"><div class="header-inner container">
+    <a class="wordmark" href="#about">Mahmoud Selim</a>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" hidden><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>Menu</button>
+    <nav class="site-nav" id="site-nav" aria-label="Main navigation"><a href="#about">About</a><a href="#news">News</a><a href="#publications">Publications</a><a href="#contact">Contact</a></nav>
+  </div></header>
+<noscript><style>@media(max-width:640px){.header-inner{flex-wrap:wrap;padding-block:12px}.site-nav{display:flex;position:static;box-shadow:none;border:0;padding:0;width:100%}}</style></noscript>
+  <main id="content" class="container">
+    <section class="about" id="about" aria-labelledby="profile-name">
+      <div class="profile-layout">
+        <figure class="portrait-column">
+          <div class="portrait-frame">
+            <div class="portrait-fallback" aria-hidden="true"><span class="initials">MS</span></div>
+            <img class="portrait-image" data-portrait data-src="assets/images/mahmoud-selim.jpg" style="object-position:50% 35%" alt="Portrait of Mahmoud Selim" width="700" height="800" hidden>
+          </div>
+          <figcaption class="portrait-caption">Stockholm, Sweden</figcaption>
+        </figure>
+        <div class="profile-copy">
+          <div class="profile-heading">
+            <h1 id="profile-name">Mahmoud Selim</h1>
+            <p class="role-label">Industrial Ph.D. student</p>
+            <p class="affiliation-line"><a href="https://traton.com/en.html">TRATON Group</a><span class="affiliation-dot" aria-hidden="true">·</span><a href="https://www.kth.se/en">KTH Royal Institute of Technology</a></p>
+          </div>
+          <div class="profile-links" aria-label="Contact and academic profiles"><a href="mailto:mahmoud.selim@scania.com">Email</a><span class="link-divider" aria-hidden="true">/</span><a href="https://scholar.google.se/citations?hl=en&amp;user=J5m8mIYAAAAJ">Google Scholar</a><span class="link-divider" aria-hidden="true">/</span><a href="https://eg.linkedin.com/in/mahmoud-selim96">LinkedIn</a></div>
+          <div class="biography"><p>I am an industrial Ph.D. student at <a href="https://traton.com/en.html">TRATON Group</a> and the <strong>Division of Decision and Control Systems</strong>, School of Electrical Engineering and Computer Science, at <a href="https://www.kth.se/en">KTH Royal Institute of Technology</a>. I am advised by <a href="https://people.kth.se/~kallej/index.html">Karl H. Johansson</a>.</p><p>My research focuses on <strong>learning and intelligent behavior in autonomous systems</strong>, with an emphasis on generalization, adaptation, and acquiring new behaviors. My current work spans reinforcement learning, adaptive dynamics modeling, and motion planning, with robotics and autonomous driving as real-world applications.</p></div>
+          <section class="research" id="research" aria-labelledby="research-title">
+            <h2 id="research-title">Research interests</h2>
+            <ul class="research-interests"><li class="color-blue">Reinforcement learning</li><li class="color-violet">Generalization &amp; adaptation</li><li class="color-teal">Robot intelligence</li></ul>
+            <p class="vision">My broader goal is to build intelligent agents that keep learning and turn that knowledge into capable behavior in the physical world.</p>
+          </section>
+        </div>
+      </div>
+    </section>
+    <section class="news" id="news" aria-labelledby="news-title"><h2 class="section-title" id="news-title">News</h2><ul class="news-list"><li><time datetime="2026-10">Oct 2026</time><p>Our preprint <a href="https://mahmoud-selim.github.io/ICDP/">Beyond Policy Support (ICDP)</a> is available: interaction-constrained offline reinforcement learning for autonomous driving.</p></li><li><span class="news-date">2026</span><p><a href="https://mahmoud-selim.github.io/NSPG/">NSPG</a> at <strong>ICML 2026</strong>: policy gradients for diffusion policies in offline reinforcement learning.</p></li><li><span class="news-date">2025</span><p><a href="https://mahmoud-selim.github.io/MetaKoopman/">MetaKoopman</a> at <strong>NeurIPS 2025</strong>: Bayesian adaptation for dynamics under distribution shifts.</p></li></ul></section>
+    <section class="publications" id="publications" aria-labelledby="publications-title">
+      <div class="section-heading-row"><h2 class="section-title" id="publications-title">Selected publications</h2><a href="https://scholar.google.se/citations?hl=en&amp;user=J5m8mIYAAAAJ" class="quiet-link"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg>All publications on Scholar</a></div>
+      <div class="publication-list"><article class="publication color-blue" id="publication-icdp" aria-labelledby="title-icdp">
+      <div class="publication-media-wrap">
+        <a class="publication-media" href="https://mahmoud-selim.github.io/ICDP/" aria-label="ICDP project page">
+          <img class="media-poster" src="assets/images/icdp-placeholder.svg" alt="ICDP illustrative placeholder" width="620" height="400" loading="lazy">
+          <img class="media-animation" data-animation data-src="videos/icdp.gif" data-name="ICDP" alt="ICDP autonomous-driving demonstration" width="620" height="400" hidden>
+        </a>
+        <button type="button" class="media-pause" hidden aria-pressed="false">Play GIF</button>
+      </div>
+      <div class="publication-copy">
+        <h3 id="title-icdp"><a href="https://mahmoud-selim.github.io/ICDP/">Beyond Policy Support: Interaction-Constrained Offline Reinforcement Learning for Autonomous Driving</a></h3>
+        <p class="publication-authors"><strong>Mahmoud Selim</strong>, Cristina Cipriani, Karl H. Johansson</p>
+        <p class="publication-venue color-blue">Preprint, 2026</p>
+        <p class="publication-summary">Offline policy improvement that explicitly constrains interaction-level distribution shift, evaluated in closed-loop driving and on a full-scale autonomous truck.</p>
+        <div class="publication-links"><a href="https://mahmoud-selim.github.io/ICDP/">project page</a><span class="link-divider" aria-hidden="true">/</span><a href="https://arxiv.org/abs/2610.09763">arXiv</a><span class="link-divider" aria-hidden="true">/</span><details class="citation"><summary>BibTeX</summary>
+      <div class="citation-body"><pre>@article{selim2026beyond,
+  title = {Beyond Policy Support: Interaction-Constrained Offline Reinforcement Learning for Autonomous Driving},
+  author = {Selim, Mahmoud and Cipriani, Cristina and Johansson, Karl H.},
+  journal = {arXiv preprint arXiv:2610.09763},
+  year = {2026}
+}</pre>
+        <button type="button" class="copy-citation" hidden aria-live="polite">Copy BibTeX</button>
+      </div></details></div>
+      </div>
+    </article>
+<article class="publication color-violet" id="publication-nspg" aria-labelledby="title-nspg">
+      <div class="publication-media-wrap">
+        <a class="publication-media" href="https://mahmoud-selim.github.io/NSPG/" aria-label="NSPG project page">
+          <img class="media-poster" src="assets/images/nspg-placeholder.svg" alt="NSPG illustrative placeholder" width="620" height="400" loading="lazy">
+          <img class="media-animation" data-animation data-src="videos/nspg.gif" data-name="NSPG" alt="NSPG diffusion-policy learning demonstration" width="620" height="400" hidden>
+        </a>
+        <button type="button" class="media-pause" hidden aria-pressed="false">Play GIF</button>
+      </div>
+      <div class="publication-copy">
+        <h3 id="title-nspg"><a href="https://mahmoud-selim.github.io/NSPG/">Noisy-Space Policy Gradient for Diffusion Policies in Offline Reinforcement Learning</a></h3>
+        <p class="publication-authors"><strong>Mahmoud Selim</strong>, Cristina Cipriani, Karl H. Johansson</p>
+        <p class="publication-venue color-violet">ICML 2026</p>
+        <p class="publication-summary">A principled policy gradient for diffusion policies that connects noisy latents to clean-action values without backpropagating through denoising.</p>
+        <div class="publication-links"><a href="https://mahmoud-selim.github.io/NSPG/">project page</a><span class="link-divider" aria-hidden="true">/</span><a href="https://github.com/mahmoud-selim/NSPG">code</a><span class="link-divider" aria-hidden="true">/</span><details class="citation"><summary>BibTeX</summary>
+      <div class="citation-body"><pre>@inproceedings{selim2026noisyspace,
+  title = {Noisy-Space Policy Gradient for Diffusion Policies in Offline Reinforcement Learning},
+  author = {Mahmoud Selim and Cristina Cipriani and Karl Henrik Johansson},
+  booktitle = {Forty-third International Conference on Machine Learning},
+  year = {2026}
+}</pre>
+        <button type="button" class="copy-citation" hidden aria-live="polite">Copy BibTeX</button>
+      </div></details></div>
+      </div>
+    </article>
+<article class="publication color-teal" id="publication-metakoopman" aria-labelledby="title-metakoopman">
+      <div class="publication-media-wrap">
+        <a class="publication-media" href="https://mahmoud-selim.github.io/MetaKoopman/" aria-label="MetaKoopman project page">
+          <img class="media-poster" src="assets/images/metakoopman-placeholder.svg" alt="MetaKoopman illustrative placeholder" width="620" height="400" loading="lazy">
+          <img class="media-animation" data-animation data-src="videos/metakoopman.gif" data-name="MetaKoopman" alt="MetaKoopman adaptive dynamics and winter truck-trial demonstration" width="620" height="400" hidden>
+        </a>
+        <button type="button" class="media-pause" hidden aria-pressed="false">Play GIF</button>
+      </div>
+      <div class="publication-copy">
+        <h3 id="title-metakoopman"><a href="https://mahmoud-selim.github.io/MetaKoopman/">MetaKoopman: Bayesian Meta-Learning of Koopman Operators for Modeling Structured Dynamics under Distribution Shifts</a></h3>
+        <p class="publication-authors"><strong>Mahmoud Selim</strong>, Sriharsha Bhat, Karl H. Johansson</p>
+        <p class="publication-venue color-teal">NeurIPS 2025</p>
+        <p class="publication-summary">Bayesian meta-learning for fast, uncertainty-aware adaptation of dynamics models, with real-world validation on an autonomous truck in winter conditions.</p>
+        <div class="publication-links"><a href="https://mahmoud-selim.github.io/MetaKoopman/">project page</a><span class="link-divider" aria-hidden="true">/</span><a href="https://proceedings.neurips.cc/paper_files/paper/2025/hash/2a5dd6bad2d10966a8bfa254dfb7dc76-Abstract-Conference.html">paper</a><span class="link-divider" aria-hidden="true">/</span><a href="https://github.com/Mahmoud-Selim/MetaKoopman">code</a><span class="link-divider" aria-hidden="true">/</span><details class="citation"><summary>BibTeX</summary>
+      <div class="citation-body"><pre>@inproceedings{selim2025metakoopman,
+  title = {MetaKoopman: Bayesian Meta-Learning of Koopman Operators for Modeling Structured Dynamics under Distribution Shifts},
+  author = {Selim, Mahmoud and Bhat, Sriharsha and Johansson, Karl H.},
+  booktitle = {Advances in Neural Information Processing Systems},
+  volume = {38},
+  year = {2025}
+}</pre>
+        <button type="button" class="copy-citation" hidden aria-live="polite">Copy BibTeX</button>
+      </div></details></div>
+      </div>
+    </article></div>
+    </section>
+    
+    <section class="contact" id="contact" aria-labelledby="contact-title">
+      <h2 class="section-title" id="contact-title">Contact</h2><p>I welcome conversations about machine learning, robot intelligence, and autonomous systems.</p>
+      <p><a href="mailto:mahmoud.selim@scania.com">mahmoud.selim@scania.com</a></p>
+    </section>
+  </main>
+  <footer class="site-footer"><div class="footer-inner container"><p>© 2026 Mahmoud Selim. All rights reserved.<span class="affiliation-dot" aria-hidden="true">·</span>Stockholm, Sweden</p><p>Updated October 2026</p></div></footer>
 </body>
 </html>
